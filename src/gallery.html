@@ -57,6 +57,16 @@ main{max-width:1200px;margin:0 auto;padding:16px}
 .lb .nv{position:absolute;top:50%;transform:translateY(-50%);width:48px;height:48px;border-radius:50%;border:none;background:rgba(255,255,255,.14);color:#fff;font-size:24px;cursor:pointer}
 .lb .nv.p{right:12px}.lb .nv.n{left:12px}
 .lb .ft{color:#fff;padding:10px 16px 16px;text-align:center;font-size:15px;min-height:44px}
+.it.sel{outline:3px solid var(--ink);outline-offset:-3px}
+.it .ck{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;border:2px solid #fff;background:rgba(25,25,23,.25);display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;line-height:1}
+.it.sel .ck{background:var(--ink);border-color:var(--ink)}
+.it.sel img{transform:scale(.92);border-radius:10px}
+.it img{transition:transform .15s}
+.selbar{position:fixed;bottom:0;left:0;right:0;z-index:15;background:#fff;border-top:1px solid var(--line);box-shadow:0 -8px 24px rgba(25,25,23,.08);padding:12px 16px calc(12px + env(safe-area-inset-bottom))}
+.selbar .in{max-width:1200px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.selbar b{font-weight:600;flex:1 1 auto}
+body.selecting main{padding-bottom:110px}
+.btn:disabled{opacity:.4;cursor:default}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:999px;padding:10px 18px;z-index:30;font-size:15px}
 </style>
 </head>
@@ -87,11 +97,22 @@ main{max-width:1200px;margin:0 auto;padding:16px}
       <button class="btn" id="copy" type="button">קישור להעלאה (לאורחים)</button>
       <button class="btn" id="share" type="button">קישור לצפייה (למשפחה)</button>
       <button class="btn" id="unshare" type="button" title="מבטל את קישור הצפייה הנוכחי ויוצר חדש">ביטול קישור הצפייה</button>
+      <button class="btn" id="pick" type="button">בחירת תמונות</button>
       <button class="btn y" id="all" type="button">הורדת הכול</button>
     </div>
   </div>
   <div class="notes" id="notesBox" hidden><details><summary id="notesT">ברכות מהאורחים</summary><ul id="notes"></ul></details></div>
   <main><div class="grid" id="grid"></div><p class="empty" id="empty" hidden>עוד לא הועלו תמונות. שלחו את הקישור למשפחה ולחברים 💛</p></main>
+</div>
+
+<div class="selbar" id="selbar" hidden>
+  <div class="in">
+    <b id="selN">לא נבחרו תמונות</b>
+    <button class="btn" id="selAll" type="button">בחירת הכול</button>
+    <button class="btn" id="selDl" type="button" disabled>הורדה</button>
+    <button class="btn dark" id="selSh" type="button" disabled>שיתוף</button>
+    <button class="btn" id="selX" type="button">ביטול</button>
+  </div>
 </div>
 
 <div class="lb" id="lb" hidden role="dialog" aria-modal="true" aria-label="תצוגה">
@@ -115,7 +136,7 @@ main{max-width:1200px;margin:0 auto;padding:16px}
   var EV=new URLSearchParams(location.search).get('ev')||'vort';
   if(!EVENTS[EV])EV=Object.keys(EVENTS)[0];
   var $=function(id){return document.getElementById(id);};
-  var key=null,items=[],view=[],filt='all',who='',cur=-1;
+  var key=null,items=[],view=[],filt='all',who='',cur=-1,picking=false,picked={},shareFiles=null;
   try{key=localStorage.getItem('wed_key');}catch(e){}
   $('ttl').textContent='תמונות מ'+EVENTS[EV].label;
 
@@ -157,9 +178,11 @@ main{max-width:1200px;margin:0 auto;padding:16px}
       if(!im.src||im.src===location.href)im.remove();else{im.onerror=function(){im.remove();ph.textContent=isVid(x)?'▶':'תמונה';};b.appendChild(im);}
       if(isVid(x)){var t=document.createElement('span');t.className='vid';t.textContent='▶ סרטון';b.appendChild(t);}
       if(x.by){var w=document.createElement('span');w.className='by';w.textContent=x.by;b.appendChild(w);}
-      b.onclick=function(){openLb(i);};g.appendChild(b);
+      if(picking){var ck=document.createElement('span');ck.className='ck';ck.setAttribute('aria-hidden','true');ck.textContent=picked[x.id]?'✓':'';b.appendChild(ck);if(picked[x.id])b.classList.add('sel');b.setAttribute('aria-pressed',String(!!picked[x.id]));}
+      b.onclick=function(){if(picking){if(picked[x.id])delete picked[x.id];else picked[x.id]=1;shareFiles=null;render();}else openLb(i);};g.appendChild(b);
     });
     $('empty').hidden=!!view.length;
+    paintSel();
     if(!items.length)$('empty').textContent='עוד לא הועלו תמונות. שלחו את הקישור למשפחה ולחברים 💛';
     else if(!view.length)$('empty').textContent='אין פריטים בסינון הזה';
   }
@@ -201,18 +224,49 @@ main{max-width:1200px;margin:0 auto;padding:16px}
     api('DELETE','item/'+x.id).then(function(){items=items.filter(function(y){return y.id!==x.id;});render();if(cur>=view.length)cur=view.length-1;if(cur<0)closeLb();else showLb();toast('נמחק');})
     .catch(function(e){toast(e.message);});};
 
-  /* download all */
+  /* selection */
+  function selList(){return items.filter(function(x){return picked[x.id];});}
+  function paintSel(){
+    document.body.classList.toggle('selecting',picking);$('selbar').hidden=!picking;$('pick').textContent=picking?'סיום בחירה':'בחירת תמונות';
+    var ids={};items.forEach(function(x){ids[x.id]=1;});Object.keys(picked).forEach(function(k){if(!ids[k])delete picked[k];});
+    var n=selList().length;$('selN').textContent=n?('נבחרו '+n+(n===1?' פריט':' פריטים')):'בוחרים תמונות בלחיצה';
+    $('selDl').disabled=!n;$('selSh').disabled=!n||$('selSh').dataset.busy==='1';
+    if(!$('selSh').dataset.busy)$('selSh').textContent=shareFiles?'שיתוף עכשיו':'שיתוף';
+    var allOn=view.length&&view.every(function(x){return picked[x.id];});$('selAll').textContent=allOn?'ניקוי הבחירה':'בחירת הכול';
+  }
+  $('pick').onclick=function(){picking=!picking;if(!picking){picked={};shareFiles=null;}render();};
+  $('selX').onclick=function(){picking=false;picked={};shareFiles=null;render();};
+  $('selAll').onclick=function(){var allOn=view.every(function(x){return picked[x.id];});view.forEach(function(x){if(allOn)delete picked[x.id];else picked[x.id]=1;});shareFiles=null;render();};
+  $('selDl').onclick=function(){downloadList(selList(),$('selDl'),'הורדה');};
+  $('selSh').onclick=function(){
+    var list=selList(),b=$('selSh');if(!list.length)return;
+    if(shareFiles){var data={files:shareFiles};
+      navigator.share(data).then(function(){shareFiles=null;paintSel();}).catch(function(e){if(e&&e.name!=='AbortError'){toast('השיתוף לא הצליח. אפשר להוריד ולשתף מהטלפון');}});return;}
+    if(!navigator.share||!navigator.canShare){toast('הדפדפן הזה לא תומך בשיתוף קבצים. מורידים במקום.');downloadList(list,$('selDl'),'הורדה');return;}
+    var tot=list.reduce(function(s,x){return s+x.size;},0);
+    if(tot>300*1048576&&!confirm('הקבצים שנבחרו גדולים ('+fmt(tot)+'). השיתוף עלול להיות איטי. להמשיך?'))return;
+    var fn=names(list),done=0;b.dataset.busy='1';b.disabled=true;b.textContent='מכין 0 / '+list.length;
+    Promise.all(list.map(function(x,k){return fetch(x.url).then(function(r){if(!r.ok)throw new Error();return r.blob();}).then(function(bl){done++;b.textContent='מכין '+done+' / '+list.length;return new File([bl],fn[k],{type:bl.type||x.type||'application/octet-stream'});});}))
+      .then(function(files){delete b.dataset.busy;
+        if(!navigator.canShare({files:files})){shareFiles=null;paintSel();toast('אי אפשר לשתף את הקבצים האלה מכאן. מורידים במקום.');downloadList(list,$('selDl'),'הורדה');return;}
+        shareFiles=files;paintSel();
+        navigator.share({files:files}).then(function(){shareFiles=null;paintSel();}).catch(function(e){if(e&&e.name==='NotAllowedError')toast('הקבצים מוכנים. לוחצים "שיתוף עכשיו"');});})
+      .catch(function(){delete b.dataset.busy;shareFiles=null;paintSel();toast('לא הצלחנו להכין את הקבצים. בדקו את החיבור ונסו שוב');});
+  };
+
+  /* download */
   function safe(n){return String(n).replace(/[\\\/:*?"<>|\u0000-\u001f]/g,'_').trim().slice(0,120)||'file';}
   function names(list){var used={};return list.map(function(x){var base=safe((x.by?x.by+' - ':'')+x.name),n=base,i=2;
     while(used[n.toLowerCase()]){var m=base.match(/^(.*?)(\.[^.]+)?$/);n=m[1]+' ('+(i++)+')'+(m[2]||'');}used[n.toLowerCase()]=1;return n;});}
-  $('all').onclick=function(){
-    var list=view.slice();if(!list.length)return;
-    var fn=names(list),btn=$('all');
+  $('all').onclick=function(){downloadList(view.slice(),$('all'),'הורדת הכול');};
+  function downloadList(list,btn,label){
+    if(!list.length)return;
+    var fn=names(list);
     if(window.showDirectoryPicker){
       window.showDirectoryPicker({mode:'readwrite'}).then(function(dir){
         var i=0,fail=0;btn.disabled=true;
         function next(){
-          if(i>=list.length){btn.disabled=false;btn.textContent='הורדת הכול';toast(fail?'הסתיים. '+fail+' קבצים לא ירדו':'כל '+list.length+' הקבצים נשמרו בתיקייה');return;}
+          if(i>=list.length){btn.disabled=false;btn.textContent=label;toast(fail?'הסתיים. '+fail+' קבצים לא ירדו':'כל '+list.length+' הקבצים נשמרו בתיקייה');return;}
           var k=i++;btn.textContent='מוריד '+(k+1)+' / '+list.length;
           return dir.getFileHandle(fn[k],{create:true}).then(function(h){return h.createWritable();}).then(function(w){
             return fetch(list[k].url).then(function(r){if(!r.ok)throw new Error();return r.body.pipeTo(w);});
@@ -224,7 +278,7 @@ main{max-width:1200px;margin:0 auto;padding:16px}
       if(!confirm('הדפדפן יוריד '+list.length+' קבצים אחד אחרי השני. אם הוא שואל אם לאפשר הורדה של כמה קבצים, אשרו. להמשיך?'))return;
       var i=0;(function step(){if(i>=list.length)return;var a=document.createElement('a');a.href=list[i].dl;a.download=fn[i];document.body.appendChild(a);a.click();a.remove();i++;setTimeout(step,900);})();
     }
-  };
+  }
 
   /* login */
   function tryKey(k){key=k;return load().catch(function(e){if(e.status===401){key=null;try{localStorage.removeItem('wed_key');}catch(x){}$('login').hidden=false;$('app').hidden=true;$('lerr').textContent=k?'הסיסמה לא נכונה':'';}else{$('login').hidden=false;$('lerr').textContent=e.message;}});}
@@ -235,7 +289,7 @@ main{max-width:1200px;margin:0 auto;padding:16px}
     load().catch(function(e){$('app').hidden=true;var c=$('login');c.hidden=false;c.innerHTML='<h2>הקישור לא פעיל</h2><p style="color:var(--soft);margin:0"></p>';c.querySelector('p').textContent=e.message;});
   }
   else if(key)tryKey(key);else $('login').hidden=false;
-  setInterval(function(){if((key||SHARE)&&$('lb').hidden&&!$('all').disabled)load().catch(function(){});},60000);
+  setInterval(function(){if((key||SHARE)&&$('lb').hidden&&!$('all').disabled&&!$('selSh').dataset.busy&&!shareFiles)load().catch(function(){});},60000);
 })();
 </script>
 </body>
