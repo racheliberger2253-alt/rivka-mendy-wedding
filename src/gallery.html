@@ -136,6 +136,8 @@ body.selecting main{padding-bottom:110px}
   var EV=new URLSearchParams(location.search).get('ev')||'vort';
   if(!EVENTS[EV])EV=Object.keys(EVENTS)[0];
   var $=function(id){return document.getElementById(id);};
+  var MOB=!!(navigator.share&&navigator.canShare)&&(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)||(navigator.maxTouchPoints>1&&/Mac/.test(navigator.platform)));
+  var lbFile=null,lbFileId=null;
   var key=null,items=[],view=[],filt='all',who='',cur=-1,picking=false,picked={},shareFiles=null;
   try{key=localStorage.getItem('wed_key');}catch(e){}
   $('ttl').textContent='תמונות מ'+EVENTS[EV].label;
@@ -214,9 +216,16 @@ body.selecting main{padding-bottom:110px}
     $('lbT').textContent=(cur+1)+' / '+view.length+' · '+x.name+' · '+fmt(x.size);
     $('lbF').textContent=(x.by?x.by+' · ':'')+when(x.at)+(x.note?' · "'+x.note+'"':'');
     $('lbDl').href=x.dl;
+    if(MOB){$('lbDl').textContent='שמירה לגלריה';
+      if(lbFileId!==x.id){lbFile=null;lbFileId=x.id;
+        if(x.size<80*1048576){var want=x.id;fetch(x.url).then(function(r){if(!r.ok)throw new Error();return r.blob();}).then(function(bl){if(lbFileId!==want)return;var f=new File([bl],names([x])[0],{type:bl.type||x.type||'image/jpeg'});if(navigator.canShare({files:[f]}))lbFile=f;}).catch(function(){});}}}
     $('lbP').hidden=cur<=0;$('lbN').hidden=cur>=view.length-1;
   }
   $('lbX').onclick=closeLb;
+  // בטלפון: "שמירה לגלריה" פותח את חלון השיתוף, ושם בוחרים "שמירת תמונה" / "שמירה בגלריה"
+  $('lbDl').addEventListener('click',function(e){if(!MOB)return;e.preventDefault();
+    if(lbFile){navigator.share({files:[lbFile]}).catch(function(err){if(err&&err.name!=='AbortError')toast('לא הצלחנו לפתוח את השמירה. נסו שוב');});}
+    else toast('רגע, התמונה עוד נטענת. נסו שוב בעוד שנייה');});
   // לחיצה על הרקע (מחוץ לתמונה ולכפתורים) סוגרת
   $('lb').addEventListener('click',function(e){var x=e.target;if(x===$('lb')||x===$('lbS')||x===$('lbF')||x===$('lbT')||x.classList.contains('hd'))closeLb();});
   $('lbP').onclick=function(){if(cur>0){cur--;showLb();}};
@@ -233,13 +242,14 @@ body.selecting main{padding-bottom:110px}
     var ids={};items.forEach(function(x){ids[x.id]=1;});Object.keys(picked).forEach(function(k){if(!ids[k])delete picked[k];});
     var n=selList().length;$('selN').textContent=n?('נבחרו '+n+(n===1?' פריט':' פריטים')):'בוחרים תמונות בלחיצה';
     $('selDl').disabled=!n;$('selSh').disabled=!n||$('selSh').dataset.busy==='1';
-    if(!$('selSh').dataset.busy)$('selSh').textContent=shareFiles?'שיתוף עכשיו':'שיתוף';
+    if(!$('selSh').dataset.busy)$('selSh').textContent=shareFiles?(MOB?'שמירה / שיתוף עכשיו':'שיתוף עכשיו'):(MOB?'שיתוף':'שיתוף');
+    $('selDl').textContent=MOB?'שמירה לגלריה':'הורדה';
     var allOn=view.length&&view.every(function(x){return picked[x.id];});$('selAll').textContent=allOn?'ניקוי הבחירה':'בחירת הכול';
   }
   $('pick').onclick=function(){picking=!picking;if(!picking){picked={};shareFiles=null;}render();};
   $('selX').onclick=function(){picking=false;picked={};shareFiles=null;render();};
   $('selAll').onclick=function(){var allOn=view.every(function(x){return picked[x.id];});view.forEach(function(x){if(allOn)delete picked[x.id];else picked[x.id]=1;});shareFiles=null;render();};
-  $('selDl').onclick=function(){downloadList(selList(),$('selDl'),'הורדה');};
+  $('selDl').onclick=function(){if(MOB){$('selSh').click();return;}downloadList(selList(),$('selDl'),'הורדה');};
   $('selSh').onclick=function(){
     var list=selList(),b=$('selSh');if(!list.length)return;
     if(shareFiles){var data={files:shareFiles};
