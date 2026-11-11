@@ -1,0 +1,17 @@
+name = "rivka-mendy-wedding"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+
+[[rules]]
+type = "Text"
+globs = ["**/*.html"]
+fallthrough = false
+
+# מסד הנתונים והאחסון נוצרים אוטומטית בפריסה הראשונה
+[[d1_databases]]
+binding = "DB"
+database_name = "rivka-mendy-wedding"
+
+[[r2_buckets]]
+binding = "PHOTOS"
+bucket_name = "rivka-mendy-wedding-photos"
