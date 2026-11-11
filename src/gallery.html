@@ -67,6 +67,7 @@ main{max-width:1200px;margin:0 auto;padding:16px}
 .selbar b{font-weight:600;flex:1 1 auto}
 body.selecting main{padding-bottom:110px}
 .btn:disabled{opacity:.4;cursor:default}
+.btn.delb{color:var(--err);border-color:#E9C9C9}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:999px;padding:10px 18px;z-index:30;font-size:15px}
 </style>
 </head>
@@ -111,6 +112,7 @@ body.selecting main{padding-bottom:110px}
     <button class="btn" id="selAll" type="button">בחירת הכול</button>
     <button class="btn" id="selDl" type="button" disabled>הורדה</button>
     <button class="btn dark" id="selSh" type="button" disabled>שיתוף</button>
+    <button class="btn delb" id="selDel" type="button" disabled>מחיקה</button>
     <button class="btn" id="selX" type="button">ביטול</button>
   </div>
 </div>
@@ -241,7 +243,7 @@ body.selecting main{padding-bottom:110px}
     document.body.classList.toggle('selecting',picking);$('selbar').hidden=!picking;$('pick').textContent=picking?'סיום בחירה':'בחירת תמונות';
     var ids={};items.forEach(function(x){ids[x.id]=1;});Object.keys(picked).forEach(function(k){if(!ids[k])delete picked[k];});
     var n=selList().length;$('selN').textContent=n?('נבחרו '+n+(n===1?' פריט':' פריטים')):'בוחרים תמונות בלחיצה';
-    $('selDl').disabled=!n;$('selSh').disabled=!n||$('selSh').dataset.busy==='1';
+    $('selDl').disabled=!n;$('selDel').disabled=!n||$('selDel').dataset.busy==='1';$('selSh').disabled=!n||$('selSh').dataset.busy==='1';
     if(!$('selSh').dataset.busy)$('selSh').textContent=shareFiles?(MOB?'שמירה / שיתוף עכשיו':'שיתוף עכשיו'):(MOB?'שיתוף':'שיתוף');
     $('selDl').textContent=MOB?'שמירה לגלריה':'הורדה';
     var allOn=view.length&&view.every(function(x){return picked[x.id];});$('selAll').textContent=allOn?'ניקוי הבחירה':'בחירת הכול';
@@ -249,6 +251,16 @@ body.selecting main{padding-bottom:110px}
   $('pick').onclick=function(){picking=!picking;if(!picking){picked={};shareFiles=null;}render();};
   $('selX').onclick=function(){picking=false;picked={};shareFiles=null;render();};
   $('selAll').onclick=function(){var allOn=view.every(function(x){return picked[x.id];});view.forEach(function(x){if(allOn)delete picked[x.id];else picked[x.id]=1;});shareFiles=null;render();};
+  $('selDel').onclick=function(){
+    var list=selList(),b=$('selDel');if(!list.length)return;
+    if(!confirm('למחוק '+(list.length===1?'את הפריט שנבחר':list.length+' פריטים')+' לתמיד? אי אפשר לשחזר.'))return;
+    var i=0,fail=0;b.dataset.busy='1';b.disabled=true;
+    (function next(){
+      if(i>=list.length){delete b.dataset.busy;b.textContent='מחיקה';picked={};shareFiles=null;render();toast(fail?('נמחקו '+(list.length-fail)+'. '+fail+' לא נמחקו'):(list.length===1?'נמחק':'נמחקו '+list.length+' פריטים'));return;}
+      var x=list[i++];b.textContent='מוחק '+i+' / '+list.length;
+      api('DELETE','item/'+x.id).then(function(){items=items.filter(function(y){return y.id!==x.id;});}).catch(function(){fail++;}).then(next);
+    })();
+  };
   $('selDl').onclick=function(){if(MOB){$('selSh').click();return;}downloadList(selList(),$('selDl'),'הורדה');};
   $('selSh').onclick=function(){
     var list=selList(),b=$('selSh');if(!list.length)return;
@@ -297,7 +309,7 @@ body.selecting main{padding-bottom:110px}
   $('go').onclick=function(){tryKey($('key').value.trim());};
   $('key').addEventListener('keydown',function(e){if(e.key==='Enter')$('go').click();});
   if(SHARE){
-    ['open','copy','share','unshare','lbDel'].forEach(function(id){var el=$(id);(id==='open'?el.parentNode:el).hidden=true;});
+    ['open','copy','share','unshare','lbDel','selDel'].forEach(function(id){var el=$(id);(id==='open'?el.parentNode:el).hidden=true;});
     load().catch(function(e){$('app').hidden=true;var c=$('login');c.hidden=false;c.innerHTML='<h2>הקישור לא פעיל</h2><p style="color:var(--soft);margin:0"></p>';c.querySelector('p').textContent=e.message;});
   }
   else if(key)tryKey(key);else $('login').hidden=false;
