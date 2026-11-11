@@ -222,6 +222,10 @@ td.n,th.n{text-align:left;direction:ltr;white-space:nowrap}
 .bfam{display:flex;flex-direction:column}.bfam span{font-size:13px;color:var(--muted)}.bfam b{font-size:22px;font-weight:400}
 .bres{background:var(--yellow);border-radius:14px;padding:10px 14px;display:flex;flex-direction:column}.bres b{font-weight:600}.bres span{font-size:13px;color:#1F4A60}
 select.whopaid{font-size:14px;color:var(--ink)}
+.openlink{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;border:1.5px solid var(--ink)}
+.openlink h2{margin:0 0 4px}.openlink p{margin:0 0 8px;color:var(--muted);font-size:14px;max-width:560px}
+.olurl{direction:ltr;display:inline-block;font-size:15px;color:var(--ink);word-break:break-all}
+.olbtns{display:flex;gap:8px;flex-wrap:wrap}.olbtns a.btn{text-decoration:none;display:inline-flex;align-items:center}
 .evtag{display:inline-block;font-size:12.5px;font-weight:600;padding:3px 10px;border-radius:999px;white-space:nowrap}
 .evtag.ev0{background:#e3ebfa;color:#2f4a80}.evtag.ev1{background:#f6e7d6;color:#7a4a1c}.evtag.ev2{background:#e2f0e2;color:#2f5f33}.evtag.ev3{background:#efe6f7;color:#5a3a7a}
 .xname{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
@@ -506,6 +510,8 @@ select.stsel{font-size:14px;border-radius:999px;padding:5px 12px;border:0;font-w
   function today(){var t=new Date();t.setHours(0,0,0,0);return t;}
   function wdate(){var s=S.settings.date;return s?new Date(s+'T00:00:00'):null;}
   function daysTo(d){return Math.round((d-today())/86400000);}
+  // ספירה לאחור לאירוע: שעת האירוע 08:00 בבוקר
+  function evDays(isoStr){var ms=new Date(isoStr+'T08:00:00')-new Date();return ms>0?Math.floor(ms/86400000):daysTo(new Date(isoStr+'T00:00:00'));}
   function iso(d){var m=d.getMonth()+1,dd=d.getDate();return d.getFullYear()+'-'+(m<10?'0':'')+m+'-'+(dd<10?'0':'')+dd;}
   function short(isoStr){if(!isoStr)return '';var d=new Date(isoStr+'T00:00:00');return d.getDate()+'.'+(d.getMonth()+1);}
   function taskDue(t){if(t.due)return t.due;var ed=evDate(evOf(t)),w=ed?new Date(ed+'T00:00:00'):null;if(!w||!(t.when in WHEN_DAYS))return '';var d=new Date(w);d.setDate(d.getDate()-WHEN_DAYS[t.when]);return iso(d);}
@@ -592,7 +598,7 @@ select.stsel{font-size:14px;border-radius:999px;padding:5px 12px;border:0;font-w
   }
   function renderHome(v){
     var T=S.tasks.filter(inEv).filter(function(t){return !t.family;}),V=S.vendors.filter(inEv),G=S.guests.filter(inEvG);
-    var ek=S.ev==='הכול'?'חתונה':S.ev,eds=evDate(ek),w=eds?new Date(eds+'T00:00:00'):null,dl=w?daysTo(w):null;
+    var ek=S.ev==='הכול'?'חתונה':S.ev,eds=evDate(ek),w=eds?new Date(eds+'T00:00:00'):null,dl=w?evDays(eds):null;
     var done=T.filter(function(t){return tstat(t)==='בוצע';}).length;
     var closed=V.filter(function(x){return x.status==='נסגר';}).length, quotes=V.filter(function(x){return x.status==='הצעת מחיר';}).length;
     var items=itemList(),committed=items.reduce(function(s,i){return s+i.amount;},0),budget=evBudget(S.ev);
@@ -968,7 +974,7 @@ select.stsel{font-size:14px;border-radius:999px;padding:5px 12px;border:0;font-w
       cb.addEventListener('click',function(e){e.stopPropagation();});
       cb.addEventListener('change',function(){if(cb.checked)S.sel[g.id]=1;else delete S.sel[g.id];renderGuestTable(box);});
       var evs=gEvs(g),next=evs.map(function(e){return [e,evDate(e)];}).filter(function(x){return x[1];}).sort(function(a,b){return a[1]<b[1]?-1:1;})[0];
-      var dleft=next?daysTo(new Date(next[1]+'T00:00:00')):null;
+      var dleft=next?evDays(next[1]):null;
       var sent=g.sentAt?new Date(g.sentAt):null;
       var wa=(intlPhone(g.phone)&&S.canWrite)?el('a',{class:'iconbtn wa',href:waHref(g),target:'_blank',rel:'noopener','aria-label':'שליחה בוואטסאפ ל'+(g.name||''),title:'שליחה בוואטסאפ',onclick:function(e){e.stopPropagation();markSent(g,'וואטסאפ');}},[]):null;
       if(wa)wa.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 11.6a8.5 8.5 0 0 1-12.6 7.4L3.5 20.5l1.6-4.2A8.5 8.5 0 1 1 20.5 11.6z"/><path d="M9 8.8c.3 2.6 2.6 5 5.2 5.4l1.1-1.2 1.8.9-.4 1.6c-3.6.5-8.2-3.9-7.8-7.6l1.6-.4.9 1.8z"/></svg>';
@@ -1016,6 +1022,17 @@ select.stsel{font-size:14px;border-radius:999px;padding:5px 12px;border:0;font-w
           el('a',{class:'btn',href:waHref(qg),target:'_blank',rel:'noopener',text:'פתיחת וואטסאפ ל'+(qg.name||''),onclick:function(){markSent(qg,'וואטסאפ');S.queue.i++;if(S.queue.i>=S.queue.ids.length){S.queue=null;notice('השליחה ברצף הסתיימה.');}setTimeout(render,300);}}),
           el('button',{class:'btn light',type:'button',text:'דילוג',onclick:function(){S.queue.i++;if(S.queue.i>=S.queue.ids.length)S.queue=null;render();}}),
           el('button',{class:'btn light',type:'button',text:'עצירה',onclick:function(){S.queue=null;render();}})]));}}
+    // one link for all guests
+    var ob=rsvpBase(),olink=ob?ob+'/rsvp':'';
+    if(olink){
+      var omsg=(S.settings.title||'החתונה שלנו')+'\nנשמח שתאשרו הגעה כאן:\n'+olink;
+      var cpb=el('button',{class:'btn light',type:'button',text:'העתקת הקישור',onclick:function(){var b=this;(navigator.clipboard?navigator.clipboard.writeText(olink):Promise.reject()).then(function(){b.textContent='הועתק';setTimeout(function(){b.textContent='העתקת הקישור';},1800);}).catch(function(){window.prompt('העתיקו את הקישור:',olink);});}});
+      v.appendChild(el('section',{class:'panel openlink'},[
+        el('div',{class:'oltext'},[el('h2',{text:'קישור אחד לכל המוזמנים'}),el('p',{text:'שולחים לכולם את אותו הקישור. מי שממלא את הטופס (צד, שם, האם מגיעים, כמה גברים וכמה נשים) נכנס לבד לרשימה למטה.'}),
+          el('a',{class:'olurl',href:olink,target:'_blank',rel:'noopener',text:olink.replace(/^https?:\/\//,'')})]),
+        el('div',{class:'olbtns'},[cpb,el('a',{class:'btn',href:'https://wa.me/?text='+encodeURIComponent(omsg),target:'_blank',rel:'noopener',text:'שליחה בוואטסאפ'})])
+      ]));
+    }
     // stage strip
     var cnt={};STAGES.forEach(function(s){cnt[s[0]]=G.filter(function(g){return gStage(g)===s[0];});});
     var hz=function(a){return a.length+(a.length===1?' הזמנה':' הזמנות');};
@@ -1238,7 +1255,7 @@ select.stsel{font-size:14px;border-radius:999px;padding:5px 12px;border:0;font-w
     document.body.classList.toggle('vhome',S.view==='home');
     var ek=S.ev==='הכול'?'חתונה':S.ev,eds=evDate(ek),w=eds?new Date(eds+'T00:00:00'):null,dt=$('dates');dt.innerHTML='';
     var es=$('evSeg');es.innerHTML='';es.hidden=S.view==='settings'||S.view==='guests';if(S.ev==='דירה'&&S.view!=='budget')S.ev='הכול';es.appendChild(seg([['הכול','הכול']].concat((S.view==='budget'?XEVENTS:EVENTS).map(function(e){return [e,e];})),S.ev,function(e){S.ev=e;S.sel={};S.openVendor=null;try{sessionStorage.setItem('wev',e);}catch(x){}render();},'אירוע'));
-    if(w){var dl=daysTo(w);if(S.ev!=='הכול'&&S.ev!=='חתונה')dt.appendChild(el('span',{text:S.ev+': '}));dt.appendChild(el('span',{class:'heb',text:hebrewDate(w)}));dt.appendChild(document.createTextNode('  '+w.toLocaleDateString('he-IL',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+(dl>0?', עוד '+dl+' ימים':dl===0?', היום!':'')));}
+    if(w){var dl=evDays(eds);if(S.ev!=='הכול'&&S.ev!=='חתונה')dt.appendChild(el('span',{text:S.ev+': '}));dt.appendChild(el('span',{class:'heb',text:hebrewDate(w)}));dt.appendChild(document.createTextNode('  '+w.toLocaleDateString('he-IL',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+(dl>0?', עוד '+dl+' ימים':dl===0?', היום!':'')));}
     else dt.textContent=(S.ev==='הכול'||S.ev==='חתונה')?'בוחרים תאריך חתונה בהגדרות':'עוד לא נקבע תאריך ל'+S.ev+'. בוחרים בהגדרות';
     var ed=S.settings.evDates||{},dv=$('dVort'),dsh=$('dSheva');
     if(document.activeElement!==dv)dv.value=ed['ווארט']||'';if(document.activeElement!==dsh)dsh.value=ed['שבת שבע ברכות']||'';dv.disabled=dsh.disabled=!S.canWrite;

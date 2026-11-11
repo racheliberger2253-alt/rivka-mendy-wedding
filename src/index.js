@@ -22,6 +22,15 @@ export default {
       const ph = await photosRoute(request, env, path, url);
       if (ph) return ph;
       if (path === '/app') return html(APP_HTML);
+      if (path === '/rsvp' && request.method === 'GET') return guestPage(env, url.origin);
+      {
+        const om = path.match(/^\/api\/open\/([^/]+)$/);
+        if (om) {
+          if (!TOKEN_RE.test(om[1])) return json({ error: 'קישור לא תקין' }, 400);
+          if (request.method === 'GET') return getOpen(env, om[1]);
+          if (request.method === 'POST') return saveOpen(request, env, om[1]);
+        }
+      }
       if (path === '/invite.jpg') return inviteImage(env);
       if (path === '/api/wa/status') return waStatus(request, env);
       if (path === '/api/wa/send' && request.method === 'POST') return waSend(request, env, url.origin);
@@ -80,6 +89,46 @@ async function getResponse(env, token) {
   const row = await env.DB.prepare('SELECT answers, count, men, women, note, updated_at FROM responses WHERE token = ?').bind(token).first();
   if (!row) return json({ found: false, guest });
   return json({ found: true, guest, a: safeParse(row.answers), m: row.men, w: row.women, c: row.count, note: row.note, at: row.updated_at });
+}
+// קישור אחד לכל המוזמנים: כל מי שממלא נכנס לרשימת המוזמנים
+async function openInfo(env) {
+  const s = (await plannerDoc(env, 'planner', 'settings')) || {};
+  const evDate = e => e === 'חתונה' ? (s.date || '') : ((s.evDates || {})[e] || '');
+  return { n: '', c: 1, e: [['חתונה', evDate('חתונה')]], t: s.title || 'החתונה שלנו',
+    v: s.venue || '', ad: s.venueAddr || '', tr: s.tReception || '', tc: s.tChuppah || '', msg: s.guestMsg || '' };
+}
+async function getOpen(env, token) {
+  const guest = await openInfo(env).catch(() => null);
+  const g = await guestByToken(env, token);
+  if (!g) return json({ found: false, guest });
+  const d = safeParse(g.data);
+  return json({ found: !!d.rsvp && d.rsvp !== 'ממתין', guest, name: d.name || '', side: d.side || '',
+    a: d.rsvp === 'מגיע' ? 'yes' : d.rsvp === 'לא מגיע' ? 'no' : null, m: d.rsvpMen || 0, w: d.rsvpWomen || 0, note: d.rsvpNote || '' });
+}
+async function saveOpen(request, env, token) {
+  const len = Number(request.headers.get('content-length') || 0);
+  if (len > 4000) return json({ error: 'הבקשה גדולה מדי' }, 413);
+  let body;
+  try { body = await request.json(); } catch { return json({ error: 'בקשה לא תקינה' }, 400); }
+  const name = String(body.n || '').trim().slice(0, 80);
+  if (name.length < 2) return json({ error: 'כתבו שם ושם משפחה' }, 400);
+  const side = body.side === 'צד חתן' ? 'צד חתן' : body.side === 'צד כלה' ? 'צד כלה' : '';
+  if (!side) return json({ error: 'בחרו אם אתם מצד החתן או מצד הכלה' }, 400);
+  const a = body.a === 'yes' || body.a === 'no' ? body.a : '';
+  if (!a) return json({ error: 'בחרו אם אתם מגיעים' }, 400);
+  const men = a === 'yes' ? Math.max(0, Math.min(30, Math.round(Number(body.m) || 0))) : 0;
+  const women = a === 'yes' ? Math.max(0, Math.min(30, Math.round(Number(body.w) || 0))) : 0;
+  if (a === 'yes' && men + women < 1) return json({ error: 'כמה תגיעו? בחרו לפחות משתתף אחד' }, 400);
+  const note = String(body.note || '').slice(0, 300);
+  const now = Date.now(), count = men + women;
+  const g = await guestByToken(env, token);
+  const d = g ? safeParse(g.data) : { createdAt: now, createdBy: 'טופס אישור הגעה', group: 'אחר', events: ['חתונה'], phone: '', rsvpToken: token, fromForm: true };
+  Object.assign(d, { name, side, count: Math.max(1, count), rsvp: a === 'yes' ? 'מגיע' : 'לא מגיע', rsvpEv: { 'חתונה': a },
+    rsvpCount: count, rsvpMen: men, rsvpWomen: women, rsvpNote: note, rsvpAt: now, invited: true });
+  const id = g ? g.id : 'f' + token.slice(0, 18);
+  await env.DB.prepare(`INSERT INTO docs (col, id, data, deleted, updated_at) VALUES ('guests', ?, ?, 0, ?)
+    ON CONFLICT(col, id) DO UPDATE SET data = excluded.data, deleted = 0, updated_at = excluded.updated_at`).bind(id, JSON.stringify(d), now).run();
+  return json({ ok: true, at: now });
 }
 async function inviteImage(env) {
   const d = await plannerDoc(env, 'planner', 'invite');
@@ -339,16 +388,24 @@ textarea:focus,button:focus-visible,a:focus-visible{outline:2px solid var(--ink)
 .done h3{margin:0 0 4px;font-size:22px;font-weight:500}
 .done p{margin:0;color:var(--soft)}
 .link{background:none;border:none;color:var(--soft);text-decoration:underline;font-size:15px;cursor:pointer;margin-top:10px;min-height:44px}
+.who3{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-bottom:14px}
+input.nm{width:100%;font:inherit;font-size:16px;border:1px solid var(--line);border-radius:16px;padding:14px;background:#fff;color:var(--ink);margin-bottom:16px}
+input.nm:focus{outline:2px solid var(--ink);outline-offset:2px}
+.qlab{display:block;font-size:15px;font-weight:500;margin:0 0 8px}
 .msg{text-align:center;color:var(--soft);margin:14px 0 0;font-size:15px;white-space:pre-line}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 `;
 
 const GUEST_JS = `
 (function(){
+  var OPEN=/^.rsvp.?$/.test(location.pathname);
   var token=location.pathname.split('/').pop();
+  if(OPEN){try{token=localStorage.getItem('rsvpOpenTok')||'';}catch(e){token='';}
+    if(!/^[A-Za-z0-9_-]{10,40}$/.test(token)){var abc='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789',rnd=new Uint8Array(20);crypto.getRandomValues(rnd);token='';for(var k=0;k<20;k++)token+=abc[rnd[k]%abc.length];try{localStorage.setItem('rsvpOpenTok',token);}catch(e){}}}
+  var api=(OPEN?'/api/open/':'/api/r/')+token;
   var info={n:'',c:1,e:[['חתונה','']],t:'החתונה שלנו',v:'',ad:'',tr:'',tc:'',msg:''};
   try{var h=location.hash.slice(1);if(h){h=h.replace(/-/g,'+').replace(/_/g,'/');while(h.length%4)h+='=';var bin=atob(h),u=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);var d=JSON.parse(new TextDecoder().decode(u));if(d&&typeof d==='object')info=Object.assign(info,d);}}catch(e){}
-  var st={a:null,m:0,w:0,note:''};
+  var st={a:null,m:0,w:0,note:'',side:'',name:''};
   var $=function(id){return document.getElementById(id);};
   function gem(n){var L=[[400,'ת'],[300,'ש'],[200,'ר'],[100,'ק'],[90,'צ'],[80,'פ'],[70,'ע'],[60,'ס'],[50,'נ'],[40,'מ'],[30,'ל'],[20,'כ'],[10,'י'],[9,'ט'],[8,'ח'],[7,'ז'],[6,'ו'],[5,'ה'],[4,'ד'],[3,'ג'],[2,'ב'],[1,'א']];var s='';n=n%1000;for(var i=0;i<L.length;i++){while(n>=L[i][0]){if(n===15){s+='טו';n=0;break;}if(n===16){s+='טז';n=0;break;}s+=L[i][1];n-=L[i][0];}}return s.length>1?s.slice(0,-1)+'״'+s.slice(-1):s+'׳';}
   function heb(dt){try{var p=new Intl.DateTimeFormat('he-IL-u-ca-hebrew',{day:'numeric',month:'long',year:'numeric'}).formatToParts(dt),d=0,m='',y=0;p.forEach(function(x){if(x.type==='day')d=+x.value;if(x.type==='month')m=x.value;if(x.type==='year')y=+x.value;});if(d&&m&&y)return gem(d)+' ב'+m+' '+gem(y);}catch(e){}return '';}
@@ -370,10 +427,10 @@ const GUEST_JS = `
       var q=encodeURIComponent((info.v?info.v+' ':'')+(info.ad||''));$('waze').href='https://waze.com/ul?q='+q+'&navigate=yes';$('gmaps').href='https://www.google.com/maps/search/?api=1&query='+q;}
     else $('venueBox').hidden=true;
     $('msg').textContent=info.msg||'';$('msg').hidden=!info.msg;
-    $('hi').textContent=info.n?('שלום '+info.n):'שלום';
+    $('hi').textContent=OPEN?'אישור הגעה':(info.n?('שלום '+info.n):'שלום');
   }
   function tick(){var iso=weddingDate();if(!iso){$('count').hidden=true;return;}
-    var target=new Date(iso+'T'+(/^\\d{1,2}:\\d{2}$/.test(info.tc||info.tr)?(info.tc||info.tr).padStart(5,'0'):'19:00')+':00');
+    var target=new Date(iso+'T08:00:00');
     var ms=target-new Date();if(ms<=0){$('count').hidden=false;$('count').innerHTML='<div style="min-width:160px"><b>היום!</b><span>מחכים לכם</span></div>';return;}
     var d=Math.floor(ms/86400000),h=Math.floor(ms%86400000/3600000),m=Math.floor(ms%3600000/60000);
     $('count').hidden=false;$('cd').textContent=d;$('ch').textContent=h;$('cm').textContent=m;}
@@ -382,7 +439,8 @@ const GUEST_JS = `
     $('ppl').hidden=st.a!=='yes';
     $('mNum').textContent=st.m;$('wNum').textContent=st.w;
     $('mMinus').disabled=st.m<=0;$('wMinus').disabled=st.w<=0;
-    $('send').disabled=!st.a||(st.a==='yes'&&st.m+st.w<1);
+    $('send').disabled=!st.a||(st.a==='yes'&&st.m+st.w<1)||(OPEN&&(!st.side||st.name.trim().length<2));
+    if(OPEN){$('s-kala').setAttribute('aria-pressed',String(st.side==='צד כלה'));$('s-hatan').setAttribute('aria-pressed',String(st.side==='צד חתן'));}
   }
   $('o-yes').onclick=function(){st.a='yes';if(st.m+st.w===0){st.m=0;st.w=0;}render();};
   $('o-no').onclick=function(){st.a='no';render();};
@@ -391,9 +449,13 @@ const GUEST_JS = `
   $('wMinus').onclick=function(){if(st.w>0){st.w--;render();}};
   $('wPlus').onclick=function(){if(st.w<30){st.w++;render();}};
   $('note').oninput=function(){st.note=this.value;};
+  $('openBox').hidden=!OPEN;
+  $('s-kala').onclick=function(){st.side='צד כלה';render();};
+  $('s-hatan').onclick=function(){st.side='צד חתן';render();};
+  $('nm').oninput=function(){st.name=this.value;render();};
   $('send').onclick=function(){
     var b=this;b.disabled=true;b.textContent='שולחים…';$('err').textContent='';
-    fetch('/api/r/'+token,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({n:info.n,a:{'חתונה':st.a},m:st.a==='yes'?st.m:0,w:st.a==='yes'?st.w:0,note:st.note})})
+    fetch(api,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(OPEN?{n:st.name.trim(),side:st.side,a:st.a,m:st.a==='yes'?st.m:0,w:st.a==='yes'?st.w:0,note:st.note}:{n:info.n,a:{'חתונה':st.a},m:st.a==='yes'?st.m:0,w:st.a==='yes'?st.w:0,note:st.note})})
       .then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error(j.error||'');return j;});})
       .then(function(){b.textContent='אישור הגעה';showDone();})
       .catch(function(e){$('err').textContent=e.message||'השליחה לא הצליחה. בדקו את החיבור ונסו שוב.';b.disabled=false;b.textContent='אישור הגעה';});
@@ -404,8 +466,9 @@ const GUEST_JS = `
     $('doneP').textContent=st.a==='yes'?'רשמנו '+parts.join(' ו'):'חבל שלא תוכלו להגיע. נשמח לשמוח איתכם בהזדמנות אחרת.';}
   $('edit').onclick=function(){$('done').hidden=true;$('form').hidden=false;render();};
   paintHead();render();
-  fetch('/api/r/'+token).then(function(r){return r.json();}).then(function(j){
+  fetch(api).then(function(r){return r.json();}).then(function(j){
     if(j&&j.guest){info=Object.assign(info,j.guest);paintHead();}
+    if(OPEN){if(j&&j.found){st.a=j.a;st.m=j.m||0;st.w=j.w||0;st.note=j.note||'';st.side=j.side||'';st.name=j.name||'';$('nm').value=st.name;$('note').value=st.note;render();if(st.a)showDone();}return;}
     if(j&&j.found){var a=j.a&&(j.a['חתונה']||Object.keys(j.a).map(function(k){return j.a[k];})[0]);st.a=a||null;st.m=j.m||0;st.w=j.w||0;st.note=j.note||'';$('note').value=st.note;render();if(st.a)showDone();}
   }).catch(function(){});
 })();`;
@@ -436,6 +499,16 @@ const GUEST_PAGE = `<!DOCTYPE html><html lang="he" dir="rtl"><head><meta charset
     <div id="form">
       <p class="hi" id="hi">שלום</p>
       <p class="sub">נשמח לדעת אם תוכלו להגיע</p>
+      <div id="openBox" hidden>
+        <span class="qlab">אתם מצד</span>
+        <div class="who3" role="group" aria-label="מאיזה צד">
+          <button class="opt" id="s-kala" type="button" aria-pressed="false">הכלה</button>
+          <button class="opt" id="s-hatan" type="button" aria-pressed="false">החתן</button>
+        </div>
+        <label class="qlab" for="nm">שם ושם משפחה</label>
+        <input class="nm" id="nm" type="text" maxlength="80" autocomplete="name" placeholder="למשל: משפחת כהן">
+        <span class="qlab">האם תגיעו?</span>
+      </div>
       <div class="opts" role="group" aria-label="האם תגיעו">
         <button class="opt" id="o-yes" type="button" aria-pressed="false">נגיע בשמחה</button>
         <button class="opt no" id="o-no" type="button" aria-pressed="false">לא נוכל להגיע</button>
