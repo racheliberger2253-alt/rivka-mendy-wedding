@@ -239,7 +239,7 @@ function notFound() { return html(page('הדף לא נמצא', '<main class="car
 
 /* ---------------- pages ---------------- */
 const STYLE = `
-:root{--bg:#F7F7F5;--card:#fff;--ink:#1B1B19;--muted:#686760;--line:#E3E1DA;--tile:#F4F4F1;--yellow:#F1EA7A;
+:root{--bg:#F7F7F5;--card:#fff;--ink:#1B1B19;--muted:#686760;--line:#E3E1DA;--tile:#F4F4F1;--yellow:#AEDCF2;
   --shadow:0 1px 2px rgba(27,27,25,.04),0 6px 20px rgba(27,27,25,.06)}
 *{box-sizing:border-box}html,body{margin:0}
 body{font-family:'Heebo',system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:17px;line-height:1.5;min-height:100vh;
@@ -285,7 +285,7 @@ function page(title, body, script = '') {
 const HOME_PAGE = page('אישורי הגעה', `<main class="card"><h1>אישורי הגעה</h1><p class="muted">כדי לאשר הגעה, פתחו את הקישור האישי שקיבלתם בהודעה.</p><p class="muted" style="margin-top:14px"><a href="/app" style="color:inherit">כניסה לדף ההתארגנות של המשפחה</a></p></main>`);
 
 const GUEST_CSS = `
-:root{--ink:#191917;--soft:#6E6C66;--line:#E7E5DF;--paper:#FFFFFF;--bg:#F5F4F1;--tile:#F7F6F3;--accent:#EDE48A}
+:root{--ink:#191917;--soft:#6E6C66;--line:#E7E5DF;--paper:#FFFFFF;--bg:#F5F4F1;--tile:#F7F6F3;--accent:#B9E1F4}
 *{box-sizing:border-box}html,body{margin:0}
 body{font-family:'Heebo',system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased;padding:0 0 40px}
 [hidden]{display:none!important}
