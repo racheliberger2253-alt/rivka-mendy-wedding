@@ -12,3 +12,5 @@
    מסד הנתונים ואחסון התמונות נוצרים לבד בפריסה הראשונה, והטבלאות נוצרות לבד בכניסה הראשונה.
 2. Settings → Variables and Secrets → Add → Secret בשם `FAMILY_KEY` ← סיסמת המשפחה.
 3. מכאן כל שינוי שנדחף ל-main עולה לאתר לבד.
+
+כתובת האתר: https://rivka-mendy-wedding.racheliberger2253.workers.dev/app
