@@ -223,7 +223,7 @@ td.n,th.n{text-align:left;direction:ltr;white-space:nowrap}
 .bres{background:var(--yellow);border-radius:14px;padding:10px 14px;display:flex;flex-direction:column}.bres b{font-weight:600}.bres span{font-size:13px;color:#1F4A60}
 select.whopaid{font-size:14px;color:var(--ink)}
 .evtag{display:inline-block;font-size:12.5px;font-weight:600;padding:3px 10px;border-radius:999px;white-space:nowrap}
-.evtag.ev0{background:#e3ebfa;color:#2f4a80}.evtag.ev1{background:#f6e7d6;color:#7a4a1c}.evtag.ev2{background:#e2f0e2;color:#2f5f33}
+.evtag.ev0{background:#e3ebfa;color:#2f4a80}.evtag.ev1{background:#f6e7d6;color:#7a4a1c}.evtag.ev2{background:#e2f0e2;color:#2f5f33}.evtag.ev3{background:#efe6f7;color:#5a3a7a}
 .xname{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 select.evpick.need{border-color:#d0475f;box-shadow:0 0 0 3px #f6d5dc}
 .editbox{display:flex;gap:6px;flex-wrap:wrap}.editbox .in{min-width:0;flex:1 1 140px}
@@ -465,6 +465,7 @@ select.stsel{font-size:14px;border-radius:999px;padding:5px 12px;border:0;font-w
   var GROUPS=['משפחה','חברים','שכנים','עבודה / לימודים','אחר'];
   var RSVP=['ממתין','מגיע','לא מגיע'];
   var EVENTS=['ווארט','חתונה','שבת שבע ברכות'];
+  var XEVENTS=EVENTS.concat(['דירה']); // סיווגים להוצאות בלבד
 
   var S={view:'home',tasks:[],vendors:[],expenses:[],payments:[],guests:[],activity:[],settings:{},
     me:null,ev:'הכול',fam:null,expFilter:'הכול',showAdd:false,invite:null,waAuto:false,famKey:'',sending:false,queue:null,showRsvpSet:false,ggroup:'הכול',gstage:null,openGuest:null,prep:[],notes:{},canWrite:true,taskMode:'list',taskOwner:'הכול',openVendor:null,gq:'',gside:'הכול',grsvp:'הכול',sel:{},pending:false};
@@ -739,7 +740,7 @@ select.stsel{font-size:14px;border-radius:999px;padding:5px 12px;border:0;font-w
     // add expense
     var nm=el('input',{class:'in grow',placeholder:'על מה? למשל: טבעת, צלם, כיבוד לווארט','aria-label':'שם ההוצאה',disabled:!S.canWrite});
     var am=el('input',{class:'in',placeholder:'סכום כולל ב-₪','aria-label':'סכום',inputmode:'decimal',style:'width:130px',disabled:!S.canWrite});
-    var xe=selectIn('',[''].concat(EVENTS),null,'לאיזה אירוע','evpick');
+    var xe=selectIn('',[''].concat(XEVENTS),null,'לאיזה אירוע','evpick');
     xe.addEventListener('change',function(){xe.classList.toggle('need',!xe.value);});
     var pd=selectIn('לא שולם',['לא שולם','שולמה מקדמה','שולם במלואו'],null,'סטטוס תשלום');
     var dp=el('input',{class:'in',placeholder:'כמה שולם במקדמה','aria-label':'סכום המקדמה',inputmode:'decimal',style:'width:150px',disabled:!S.canWrite});dp.hidden=true;
@@ -787,14 +788,14 @@ select.stsel{font-size:14px;border-radius:999px;padding:5px 12px;border:0;font-w
         else if(x==='לא שולם'){upd(col,it.id,{paid:0,paid2:0,paidBy2:'',dep:false});}
         else{S.editExp=it.key;S.editDraft=null;S.depFocus=it.id;if(s!=='part')upd(col,it.id,{dep:true});render();}
       },'סטטוס תשלום עבור '+it.name,'flat stsel st-'+s);
-      var evp=el('span',{class:'evtag ev'+EVENTS.indexOf(it.ev),text:it.ev});
+      var evp=el('span',{class:'evtag ev'+XEVENTS.indexOf(it.ev),text:it.ev});
       if(S.editExp===it.key){
         var D=docOf(it),p2=num(D.paid2),p1=pa-p2;
         var dr=S.editDraft&&S.editDraft.key===it.key?S.editDraft:(S.editDraft={key:it.key,name:it.name,amount:String(it.amount||''),paid:String(p1||''),ev:it.ev,who:D.paidBy||'',paid2:String(p2||''),who2:D.paidBy2||''});
         var en=el('input',{class:'in',value:dr.name,'aria-label':'שם ההוצאה בעריכה',placeholder:'על מה?'});
         var ea=el('input',{class:'in',value:dr.amount,inputmode:'decimal','aria-label':'סכום כולל',placeholder:'הסכום הכולל'});
         var ep=el('input',{class:'in',value:dr.paid,inputmode:'decimal','aria-label':'מקדמה',placeholder:'כמה שולם במקדמה'});
-        var ee=selectIn(dr.ev,EVENTS,null,'אירוע בעריכה','evpick');
+        var ee=selectIn(dr.ev,XEVENTS,null,'אירוע בעריכה','evpick');
         var ew=selectIn(dr.who,['','משפחת הכלה','משפחת החתן'],null,'מי שילם');
         var e2=el('input',{class:'in',value:dr.paid2,inputmode:'decimal','aria-label':'תשלום יתרה',placeholder:'כמה שולם מהיתרה'});
         var ew2=selectIn(dr.who2,['','משפחת הכלה','משפחת החתן'],null,'מי שילם');
@@ -1236,7 +1237,7 @@ select.stsel{font-size:14px;border-radius:999px;padding:5px 12px;border:0;font-w
     $('dates').hidden=true;
     document.body.classList.toggle('vhome',S.view==='home');
     var ek=S.ev==='הכול'?'חתונה':S.ev,eds=evDate(ek),w=eds?new Date(eds+'T00:00:00'):null,dt=$('dates');dt.innerHTML='';
-    var es=$('evSeg');es.innerHTML='';es.hidden=S.view==='settings'||S.view==='guests';es.appendChild(seg([['הכול','הכול']].concat(EVENTS.map(function(e){return [e,e];})),S.ev,function(e){S.ev=e;S.sel={};S.openVendor=null;try{sessionStorage.setItem('wev',e);}catch(x){}render();},'אירוע'));
+    var es=$('evSeg');es.innerHTML='';es.hidden=S.view==='settings'||S.view==='guests';if(S.ev==='דירה'&&S.view!=='budget')S.ev='הכול';es.appendChild(seg([['הכול','הכול']].concat((S.view==='budget'?XEVENTS:EVENTS).map(function(e){return [e,e];})),S.ev,function(e){S.ev=e;S.sel={};S.openVendor=null;try{sessionStorage.setItem('wev',e);}catch(x){}render();},'אירוע'));
     if(w){var dl=daysTo(w);if(S.ev!=='הכול'&&S.ev!=='חתונה')dt.appendChild(el('span',{text:S.ev+': '}));dt.appendChild(el('span',{class:'heb',text:hebrewDate(w)}));dt.appendChild(document.createTextNode('  '+w.toLocaleDateString('he-IL',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+(dl>0?', עוד '+dl+' ימים':dl===0?', היום!':'')));}
     else dt.textContent=(S.ev==='הכול'||S.ev==='חתונה')?'בוחרים תאריך חתונה בהגדרות':'עוד לא נקבע תאריך ל'+S.ev+'. בוחרים בהגדרות';
     var ed=S.settings.evDates||{},dv=$('dVort'),dsh=$('dSheva');
