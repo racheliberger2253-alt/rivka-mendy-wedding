@@ -103,7 +103,7 @@ async function getOpen(env, token) {
   if (!g) return json({ found: false, guest });
   const d = safeParse(g.data);
   return json({ found: !!d.rsvp && d.rsvp !== 'ממתין', guest, name: d.name || '', side: d.side || '',
-    a: d.rsvp === 'מגיע' ? 'yes' : d.rsvp === 'לא מגיע' ? 'no' : null, m: d.rsvpMen || 0, w: d.rsvpWomen || 0, note: d.rsvpNote || '' });
+    a: d.rsvp === 'מגיע' ? 'yes' : d.rsvp === 'לא מגיע' ? 'no' : d.rsvp === 'מתלבט' ? 'maybe' : null, m: d.rsvpMen || 0, w: d.rsvpWomen || 0, note: d.rsvpNote || '' });
 }
 async function saveOpen(request, env, token) {
   const len = Number(request.headers.get('content-length') || 0);
@@ -114,16 +114,16 @@ async function saveOpen(request, env, token) {
   if (name.length < 2) return json({ error: 'כתבו שם ושם משפחה' }, 400);
   const side = body.side === 'צד חתן' ? 'צד חתן' : body.side === 'צד כלה' ? 'צד כלה' : '';
   if (!side) return json({ error: 'בחרו אם אתם מצד החתן או מצד הכלה' }, 400);
-  const a = body.a === 'yes' || body.a === 'no' ? body.a : '';
+  const a = body.a === 'yes' || body.a === 'no' || body.a === 'maybe' ? body.a : '';
   if (!a) return json({ error: 'בחרו אם אתם מגיעים' }, 400);
-  const men = a === 'yes' ? Math.max(0, Math.min(30, Math.round(Number(body.m) || 0))) : 0;
-  const women = a === 'yes' ? Math.max(0, Math.min(30, Math.round(Number(body.w) || 0))) : 0;
+  const men = a !== 'no' ? Math.max(0, Math.min(30, Math.round(Number(body.m) || 0))) : 0;
+  const women = a !== 'no' ? Math.max(0, Math.min(30, Math.round(Number(body.w) || 0))) : 0;
   if (a === 'yes' && men + women < 1) return json({ error: 'כמה תגיעו? בחרו לפחות משתתף אחד' }, 400);
   const note = String(body.note || '').slice(0, 300);
   const now = Date.now(), count = men + women;
   const g = await guestByToken(env, token);
   const d = g ? safeParse(g.data) : { createdAt: now, createdBy: 'טופס אישור הגעה', group: 'אחר', events: ['חתונה'], phone: '', rsvpToken: token, fromForm: true };
-  Object.assign(d, { name, side, count: Math.max(1, count), rsvp: a === 'yes' ? 'מגיע' : 'לא מגיע', rsvpEv: { 'חתונה': a },
+  Object.assign(d, { name, side, count: Math.max(1, count), rsvp: a === 'yes' ? 'מגיע' : a === 'maybe' ? 'מתלבט' : 'לא מגיע', rsvpEv: { 'חתונה': a },
     rsvpCount: count, rsvpMen: men, rsvpWomen: women, rsvpNote: note, rsvpAt: now, invited: true });
   const id = g ? g.id : 'f' + token.slice(0, 18);
   await env.DB.prepare(`INSERT INTO docs (col, id, data, deleted, updated_at) VALUES ('guests', ?, ?, 0, ?)
@@ -200,28 +200,29 @@ async function saveResponse(request, env, token) {
   const answers = {};
   for (const ev of EVENTS) {
     const v = body && body.a && body.a[ev];
-    if (v === 'yes' || v === 'no') answers[ev] = v;
+    if (v === 'yes' || v === 'no' || v === 'maybe') answers[ev] = v;
   }
   if (!Object.keys(answers).length) return json({ error: 'בחרו אם אתם מגיעים' }, 400);
   const men = Math.max(0, Math.min(30, Math.round(Number(body.m) || 0)));
   const women = Math.max(0, Math.min(30, Math.round(Number(body.w) || 0)));
   const anyYes = Object.values(answers).includes('yes');
+  const anyMaybe = !anyYes && Object.values(answers).includes('maybe');
   if (anyYes && men + women < 1) return json({ error: 'כמה תגיעו? בחרו לפחות משתתף אחד' }, 400);
-  const count = anyYes ? men + women : 0;
+  const count = anyYes || anyMaybe ? men + women : 0;
   const note = String(body.note || '').slice(0, 300);
   const name = String(body.n || '').slice(0, 80);
   const now = Date.now();
   await env.DB.prepare(
     `INSERT INTO responses (token, name, answers, count, men, women, note, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
      ON CONFLICT(token) DO UPDATE SET name = excluded.name, answers = excluded.answers, count = excluded.count, men = excluded.men, women = excluded.women, note = excluded.note, updated_at = excluded.updated_at`
-  ).bind(token, name, JSON.stringify(answers), count, anyYes ? men : 0, anyYes ? women : 0, note, now).run();
+  ).bind(token, name, JSON.stringify(answers), count, anyYes || anyMaybe ? men : 0, anyYes || anyMaybe ? women : 0, note, now).run();
   // עדכון המוזמן בדף ההתארגנות
   const g = await guestByToken(env, token);
   if (g) {
     const d = safeParse(g.data);
     const main = answers['חתונה'] ? 'חתונה' : Object.keys(answers)[0];
-    d.rsvp = answers[main] === 'yes' ? 'מגיע' : 'לא מגיע';
-    d.rsvpEv = answers; d.rsvpCount = count; d.rsvpMen = anyYes ? men : 0; d.rsvpWomen = anyYes ? women : 0; d.rsvpNote = note; d.rsvpAt = now; d.invited = true;
+    d.rsvp = answers[main] === 'yes' ? 'מגיע' : answers[main] === 'maybe' ? 'מתלבט' : 'לא מגיע';
+    d.rsvpEv = answers; d.rsvpCount = count; d.rsvpMen = anyYes || anyMaybe ? men : 0; d.rsvpWomen = anyYes || anyMaybe ? women : 0; d.rsvpNote = note; d.rsvpAt = now; d.invited = true;
     await env.DB.prepare('UPDATE docs SET data = ?, updated_at = ? WHERE col = ? AND id = ?').bind(JSON.stringify(d), now, 'guests', g.id).run();
   }
   return json({ ok: true, at: now });
@@ -365,7 +366,8 @@ h2{font-size:15px;font-weight:600;margin:0 0 12px;color:var(--soft);letter-spaci
 .nav a{display:flex;align-items:center;justify-content:center;gap:6px;min-height:46px;border-radius:14px;background:#fff;border:1px solid var(--line);text-decoration:none;color:var(--ink);font-weight:500;font-size:15px}
 .hi{font-size:20px;font-weight:500;margin:0 0 2px}
 .sub{color:var(--soft);margin:0 0 16px;font-size:15px}
-.opts{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}
+.opts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.opts .opt{font-size:15px;padding:6px 4px;line-height:1.25}
 .opt{min-height:54px;border-radius:16px;border:1.5px solid var(--line);background:#fff;font-size:16px;font-weight:500;cursor:pointer;transition:background-color .2s,border-color .2s,color .2s}
 .opt[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
 .opt.no[aria-pressed="true"]{background:#fff;color:var(--ink);border-color:var(--ink)}
@@ -435,8 +437,8 @@ const GUEST_JS = `
     var d=Math.floor(ms/86400000),h=Math.floor(ms%86400000/3600000),m=Math.floor(ms%3600000/60000);
     $('count').hidden=false;$('cd').textContent=d;$('ch').textContent=h;$('cm').textContent=m;}
   function render(){
-    ['yes','no'].forEach(function(v){$('o-'+v).setAttribute('aria-pressed',String(st.a===v));});
-    $('ppl').hidden=st.a!=='yes';
+    ['yes','maybe','no'].forEach(function(v){$('o-'+v).setAttribute('aria-pressed',String(st.a===v));});
+    $('ppl').hidden=st.a!=='yes'&&st.a!=='maybe';$('pplHint').hidden=st.a!=='maybe';
     $('mNum').textContent=st.m;$('wNum').textContent=st.w;
     $('mMinus').disabled=st.m<=0;$('wMinus').disabled=st.w<=0;
     $('send').disabled=!st.a||(st.a==='yes'&&st.m+st.w<1)||(OPEN&&(!st.side||st.name.trim().length<2));
@@ -444,6 +446,7 @@ const GUEST_JS = `
   }
   $('o-yes').onclick=function(){st.a='yes';if(st.m+st.w===0){st.m=0;st.w=0;}render();};
   $('o-no').onclick=function(){st.a='no';render();};
+  $('o-maybe').onclick=function(){st.a='maybe';render();};
   $('mMinus').onclick=function(){if(st.m>0){st.m--;render();}};
   $('mPlus').onclick=function(){if(st.m<30){st.m++;render();}};
   $('wMinus').onclick=function(){if(st.w>0){st.w--;render();}};
@@ -455,15 +458,15 @@ const GUEST_JS = `
   $('nm').oninput=function(){st.name=this.value;render();};
   $('send').onclick=function(){
     var b=this;b.disabled=true;b.textContent='שולחים…';$('err').textContent='';
-    fetch(api,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(OPEN?{n:st.name.trim(),side:st.side,a:st.a,m:st.a==='yes'?st.m:0,w:st.a==='yes'?st.w:0,note:st.note}:{n:info.n,a:{'חתונה':st.a},m:st.a==='yes'?st.m:0,w:st.a==='yes'?st.w:0,note:st.note})})
+    fetch(api,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(OPEN?{n:st.name.trim(),side:st.side,a:st.a,m:st.a!=='no'?st.m:0,w:st.a!=='no'?st.w:0,note:st.note}:{n:info.n,a:{'חתונה':st.a},m:st.a!=='no'?st.m:0,w:st.a!=='no'?st.w:0,note:st.note})})
       .then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error(j.error||'');return j;});})
       .then(function(){b.textContent='אישור הגעה';showDone();})
       .catch(function(e){$('err').textContent=e.message||'השליחה לא הצליחה. בדקו את החיבור ונסו שוב.';b.disabled=false;b.textContent='אישור הגעה';});
   };
   function showDone(){$('form').hidden=true;$('done').hidden=false;
     var parts=[];if(st.m)parts.push(st.m===1?'גבר אחד':st.m+' גברים');if(st.w)parts.push(st.w===1?'אישה אחת':st.w+' נשים');
-    $('doneT').textContent=st.a==='yes'?'מחכים לראות אתכם!':'תודה שעדכנתם';
-    $('doneP').textContent=st.a==='yes'?'רשמנו '+parts.join(' ו'):'חבל שלא תוכלו להגיע. נשמח לשמוח איתכם בהזדמנות אחרת.';}
+    $('doneT').textContent=st.a==='yes'?'מחכים לראות אתכם!':st.a==='maybe'?'תודה, רשמנו שאתם מתלבטים':'תודה שעדכנתם';
+    $('doneP').textContent=st.a==='yes'?'רשמנו '+parts.join(' ו'):st.a==='maybe'?'כשתחליטו, אפשר לחזור לקישור הזה ולעדכן.':'חבל שלא תוכלו להגיע. נשמח לשמוח איתכם בהזדמנות אחרת.';}
   $('edit').onclick=function(){$('done').hidden=true;$('form').hidden=false;render();};
   paintHead();render();
   fetch(api).then(function(r){return r.json();}).then(function(j){
@@ -511,8 +514,10 @@ const GUEST_PAGE = `<!DOCTYPE html><html lang="he" dir="rtl"><head><meta charset
       </div>
       <div class="opts" role="group" aria-label="האם תגיעו">
         <button class="opt" id="o-yes" type="button" aria-pressed="false">נגיע בשמחה</button>
+        <button class="opt" id="o-maybe" type="button" aria-pressed="false">מתלבטים</button>
         <button class="opt no" id="o-no" type="button" aria-pressed="false">לא נוכל להגיע</button>
       </div>
+      <p class="sub" id="pplHint" hidden style="margin:14px 0 0">אם תגיעו, כמה תהיו? <small style="color:var(--soft)">(לא חובה)</small></p>
       <div id="ppl" class="ppl" hidden>
         <div><span class="lab">גברים</span><div class="step"><button type="button" id="mMinus" aria-label="פחות גברים">−</button><output id="mNum" aria-live="polite">0</output><button type="button" id="mPlus" aria-label="עוד גבר">+</button></div></div>
         <div><span class="lab">נשים</span><div class="step"><button type="button" id="wMinus" aria-label="פחות נשים">−</button><output id="wNum" aria-live="polite">0</output><button type="button" id="wPlus" aria-label="עוד אישה">+</button></div></div>
@@ -546,7 +551,7 @@ const ADMIN_JS = `
         var tb=$('tb');tb.innerHTML='';
         rows.forEach(function(r){var ay=Object.keys(r.a).some(function(k){return r.a[k]==='yes';});if(ay){yes++;people+=r.c||0;}else no++;
           var tr=document.createElement('tr');
-          [r.n||'(ללא שם)',Object.keys(r.a).map(function(k){return k+': '+(r.a[k]==='yes'?'כן':'לא');}).join(', '),ay?(r.c+' ('+(r.m||0)+' גברים, '+(r.w||0)+' נשים)'):'—',r.note||'',new Date(r.at).toLocaleString('he-IL')].forEach(function(v){var td=document.createElement('td');td.textContent=v;tr.appendChild(td);});
+          [r.n||'(ללא שם)',Object.keys(r.a).map(function(k){return k+': '+(r.a[k]==='yes'?'כן':r.a[k]==='maybe'?'מתלבטים':'לא');}).join(', '),ay?(r.c+' ('+(r.m||0)+' גברים, '+(r.w||0)+' נשים)'):'—',r.note||'',new Date(r.at).toLocaleString('he-IL')].forEach(function(v){var td=document.createElement('td');td.textContent=v;tr.appendChild(td);});
           tb.appendChild(tr);});
         $('kYes').textContent=yes;$('kNo').textContent=no;$('kPeople').textContent=people;
         $('code').value=b64u(JSON.stringify(rows.map(function(r){return {k:r.k,a:r.a,c:r.c,m:r.m,w:r.w,note:r.note,at:r.at};})));

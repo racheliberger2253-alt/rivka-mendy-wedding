@@ -319,7 +319,7 @@ select.stsel{font-size:14px;border-radius:999px;padding:5px 12px;border:0;font-w
 .gp-gray{background:#ECEAE4;color:#4E4D47}
 .gp-pink{background:#F7DFD7;color:#8E3B25}
 .gp-yellow{background:#CBE9F7;color:#4A4515}
-.gp-orange{background:#E58E66;color:#3A1608}
+.gp-orange{background:#E58E66;color:#3A1608}.gp-lav{background:#E4DDF4;color:#3F2F6B}
 .ftools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
 .fpill{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 12px;border-radius:999px;background:#fff;border:1px solid var(--line);font-size:14px;color:var(--muted);font-weight:500;font-family:inherit}
 .fpill select{border:none;background:transparent;font:inherit;font-weight:700;color:var(--ink);padding:0 2px;cursor:pointer}
@@ -467,7 +467,7 @@ select.stsel{font-size:14px;border-radius:999px;padding:5px 12px;border:0;font-w
   var FAMS=['משפחת הכלה','משפחת החתן'];
   var SIDES=['צד כלה','צד חתן'];
   var GROUPS=['משפחה','חברים','שכנים','עבודה / לימודים','אחר'];
-  var RSVP=['ממתין','מגיע','לא מגיע'];
+  var RSVP=['ממתין','מגיע','מתלבט','לא מגיע'];
   var EVENTS=['ווארט','חתונה','שבת שבע ברכות'];
   var XEVENTS=EVENTS.concat(['דירה']); // סיווגים להוצאות בלבד
 
@@ -903,7 +903,7 @@ select.stsel{font-size:14px;border-radius:999px;padding:5px 12px;border:0;font-w
     var byTok={},n=0;S.guests.forEach(function(g){if(g.rsvpToken)byTok[g.rsvpToken]=g;});
     data.forEach(function(r){var g=byTok[r.k];if(!g||!r.a)return;
       var evs=gEvs(g),main=evs.indexOf('חתונה')>=0?'חתונה':evs[0],ans=r.a[main];
-      var st=ans==='yes'?'מגיע':ans==='no'?'לא מגיע':(g.rsvp||'ממתין');
+      var st=ans==='yes'?'מגיע':ans==='no'?'לא מגיע':ans==='maybe'?'מתלבט':(g.rsvp||'ממתין');
       if((g.rsvpAt||0)>=(r.at||0)&&g.rsvp===st)return;
       upd('guests',g.id,{rsvp:st,rsvpEv:r.a,rsvpCount:Math.max(0,Math.round(num(r.c))),rsvpNote:String(r.note||'').slice(0,300),rsvpAt:r.at||Date.now(),invited:true});n++;});
     if(n)act(S.me+' '+verb(S.me,'עדכן','עדכנה')+' '+n+' אישורי הגעה מהאתר');
@@ -915,15 +915,16 @@ select.stsel{font-size:14px;border-radius:999px;padding:5px 12px;border:0;font-w
   function gFiltered(){var q=S.gq.trim();return S.guests.filter(function(g){
     return inEvG(g)&&(S.gside==='הכול'||g.side===S.gside)&&(S.grsvp==='הכול'||(g.rsvp||'ממתין')===S.grsvp)&&(!q||String(g.name||'').indexOf(q)>=0||String(g.phone||'').indexOf(q)>=0);})
     .sort(function(a,b){return String(a.name||'').localeCompare(String(b.name||''),'he');});}
-  function gStage(g){var r=g.rsvp||'ממתין';if(r==='מגיע')return 'yes';if(r==='לא מגיע')return 'no';return g.invited?'wait':'new';}
-  var STAGES=[['new','לא נשלחה הזמנה'],['wait','ממתינים לתשובה'],['yes','מגיעים'],['no','לא מגיעים']];
-  var PILL={new:['לא נשלחה','gp-gray'],wait:['ממתינים לתשובה','gp-pink'],yes:['מגיעים','gp-yellow'],no:['לא מגיעים','gp-orange']};
+  function gStage(g){var r=g.rsvp||'ממתין';if(r==='מגיע')return 'yes';if(r==='לא מגיע')return 'no';if(r==='מתלבט')return 'maybe';return g.invited?'wait':'new';}
+  var STAGES=[['new','לא נשלחה הזמנה'],['wait','ממתינים לתשובה'],['maybe','מתלבטים'],['yes','מגיעים'],['no','לא מגיעים']];
+  var PILL={new:['לא נשלחה','gp-gray'],wait:['ממתינים לתשובה','gp-pink'],maybe:['מתלבטים','gp-lav'],yes:['מגיעים','gp-yellow'],no:['לא מגיעים','gp-orange']};
   function initials2(n){var w=String(n||'').replace(/^(משפחת|משפ׳)\s+/,'').trim().split(/\s+/);return ((w[0]||'?').charAt(0)+(w[1]?w[1].charAt(0):'')).trim();}
   function answerText(g){
+    if(g.rsvp==='מתלבט'&&g.rsvpEv){var mm=num(g.rsvpMen),ww=num(g.rsvpWomen);return 'מתלבטים'+(mm||ww?' ('+[mm?(mm===1?'גבר אחד':mm+' גברים'):'',ww?(ww===1?'אישה אחת':ww+' נשים'):''].filter(Boolean).join(' ו')+' אם יגיעו)':'');}
     if(g.rsvpEv){var yes=Object.keys(g.rsvpEv).some(function(e){return g.rsvpEv[e]==='yes';});
       if(!yes)return 'ענו שלא יגיעו';var m=num(g.rsvpMen),w=num(g.rsvpWomen);
       return 'אישרו: '+(m||w?[m?(m===1?'גבר אחד':m+' גברים'):'',w?(w===1?'אישה אחת':w+' נשים'):''].filter(Boolean).join(' ו'):g.rsvpCount+' נפשות');}
-    var st=gStage(g);if(st==='yes')return 'סומן ידנית כמגיעים';if(st==='no')return 'סומן ידנית';
+    var st=gStage(g);if(st==='yes')return 'סומן ידנית כמגיעים';if(st==='maybe')return 'סומן ידנית כמתלבטים';if(st==='no')return 'סומן ידנית';
     if(st==='wait')return 'עוד לא ענו'+(num(g.sentCount)>1?', '+g.sentCount+' הודעות':'');
     return intlPhone(g.phone)?'מוכנים לשליחה':'חסר מספר טלפון';
   }
@@ -936,8 +937,8 @@ select.stsel{font-size:14px;border-radius:999px;padding:5px 12px;border:0;font-w
     STAGES.forEach(function(x){var o=el('option',{value:x[0],text:PILL[x[0]][0]});if(x[0]===st)o.selected=true;s.appendChild(o);});
     s.addEventListener('click',function(e){e.stopPropagation();});
     s.addEventListener('keydown',function(e){e.stopPropagation();});
-    s.addEventListener('change',function(){var v=s.value,d=v==='new'?{invited:false,rsvp:'ממתין'}:v==='wait'?{invited:true,rsvp:'ממתין'}:v==='yes'?{invited:true,rsvp:'מגיע'}:{invited:true,rsvp:'לא מגיע'};
-      upd('guests',g.id,d);if(v==='yes'||v==='no')act(S.me+' '+verb(S.me,'סימן','סימנה')+' את '+(g.name||'')+' כ"'+PILL[v][0]+'"');});
+    s.addEventListener('change',function(){var v=s.value,d=v==='new'?{invited:false,rsvp:'ממתין'}:v==='wait'?{invited:true,rsvp:'ממתין'}:v==='yes'?{invited:true,rsvp:'מגיע'}:v==='maybe'?{invited:true,rsvp:'מתלבט'}:{invited:true,rsvp:'לא מגיע'};
+      upd('guests',g.id,d);if(v==='yes'||v==='no'||v==='maybe')act(S.me+' '+verb(S.me,'סימן','סימנה')+' את '+(g.name||'')+' כ"'+PILL[v][0]+'"');});
     w.appendChild(el('i'));w.appendChild(s);
     return w;
   }
