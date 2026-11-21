@@ -513,7 +513,7 @@ const GUEST_PAGE = `<!DOCTYPE html><html lang="he" dir="rtl"><head><meta charset
         <span class="qlab">האם תגיעו?</span>
       </div>
       <div class="opts" role="group" aria-label="האם תגיעו">
-        <button class="opt" id="o-yes" type="button" aria-pressed="false">נגיע בשמחה</button>
+        <button class="opt" id="o-yes" type="button" aria-pressed="false">מגיעים!</button>
         <button class="opt" id="o-maybe" type="button" aria-pressed="false">מתלבטים</button>
         <button class="opt no" id="o-no" type="button" aria-pressed="false">לא נוכל להגיע</button>
       </div>
