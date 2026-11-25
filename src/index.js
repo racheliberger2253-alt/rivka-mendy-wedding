@@ -1,14 +1,27 @@
 import RIVKA_PAGE from './guest-rivka.html';
 import IMG_LINEN from './img/linen.webp';
 import IMG_FLOWERS from './img/flowers.webp';
-import IMG_RIBBON from './img/ribbon.webp';
-import IMG_LOGO from './img/logo.webp';
+import IMG_NAMES from './img/names.webp';
 import IMG_QUOTE from './img/quote.webp';
-import IMG_ROSE from './img/rose.webp';
 import IMG_INV from './img/invitation.webp';
 import IMG_INV_JPG from './img/invitation.jpg';
-const IMAGES = { 'linen.webp': IMG_LINEN, 'flowers.webp': IMG_FLOWERS, 'ribbon.webp': IMG_RIBBON, 'logo.webp': IMG_LOGO,
-  'quote.webp': IMG_QUOTE, 'rose.webp': IMG_ROSE, 'invitation.webp': IMG_INV, 'invitation.jpg': IMG_INV_JPG };
+const IMAGES = { 'linen.webp': IMG_LINEN, 'flowers.webp': IMG_FLOWERS, 'names.webp': IMG_NAMES,
+  'quote.webp': IMG_QUOTE, 'invitation.webp': IMG_INV, 'invitation.jpg': IMG_INV_JPG };
+// קבצי יומן (שעון ישראל בחורף = UTC+2)
+const CAL = {
+  'kabbalat-panim.ics': { title: 'קבלת הפנים - מענדי ורבקה', start: '20261229T144500Z', end: '20261229T163000Z',
+    loc: 'ישיבת תומכי תמימים ליובאוויטש, רח׳ טיבוביץ׳ 4, ראשון לציון' },
+  'chuppah.ics': { title: 'החתונה של מענדי ורבקה - חופה וסעודה', start: '20261229T163000Z', end: '20261229T220000Z',
+    loc: 'אולמי בית זלטא, כפר חב״ד ב׳' },
+};
+function icsFile(key, origin) {
+  const e = CAL[key];
+  const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//rivka-mendy//he', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'BEGIN:VEVENT',
+    'UID:' + key.replace('.ics', '') + '@rivka-mendy-wedding', 'DTSTAMP:20261125T000000Z', 'DTSTART:' + e.start, 'DTEND:' + e.end,
+    'SUMMARY:' + e.title, 'LOCATION:' + e.loc, 'URL:' + origin + '/rsvp',
+    'BEGIN:VALARM', 'TRIGGER:-PT3H', 'ACTION:DISPLAY', 'DESCRIPTION:' + e.title, 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'];
+  return lines.join('\r\n') + '\r\n';
+}
 // אתר אישורי הגעה לחתונה — Cloudflare Worker + D1
 // נתיבים:
 //   /r/<token>#<details>  דף אישור ההגעה האישי של כל מוזמן
@@ -33,6 +46,10 @@ export default {
       const ph = await photosRoute(request, env, path, url);
       if (ph) return ph;
       if (path === '/app') return html(APP_HTML);
+      if (path.startsWith('/cal/') && CAL[path.slice(5)]) {
+        return new Response(icsFile(path.slice(5), url.origin), { headers: { 'content-type': 'text/calendar; charset=utf-8',
+          'content-disposition': 'attachment; filename="' + path.slice(5) + '"', 'cache-control': 'no-store' } });
+      }
       if (path.startsWith('/img/')) {
         const f = IMAGES[path.slice(5)];
         if (!f) return new Response('Not found', { status: 404 });

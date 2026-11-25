@@ -4,139 +4,119 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex"><!--OG-->
-<meta name="theme-color" content="#D6CCC1">
+<meta name="theme-color" content="#C7BDB2">
 <title>מענדי ורבקה · אישור הגעה</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@300;400;500;700&display=swap">
-<link rel="preload" as="image" href="/img/logo.webp">
+<link rel="preload" as="image" href="/img/names.webp">
 <style>
 :root{
-  --linen:#D6CCC1;      /* בד הפשתן מההזמנה */
+  --linen:#C7BDB2;      /* המפה מההזמנה */
+  --linen-soft:#D4CBC1;
   --paper:#FAF8F4;      /* נייר ההזמנה */
-  --ink:#47332A;        /* דיו חום */
+  --cream:#F5EFE4;      /* שמנת */
+  --ink:#47332A;
   --ink-deep:#2C1F16;
   --soft:#7D6B5D;
   --line:#DCD1C4;
-  --press:#EFE9E1;
+  --press:#EDE5D9;
   --err:#9B2C2C;
   --serif:'Frank Ruhl Libre','David Libre',Georgia,serif;
 }
 *{box-sizing:border-box}
 html,body{margin:0}
 [hidden]{display:none!important}
-body{
-  font-family:var(--serif);color:var(--ink);line-height:1.6;
-  background:var(--linen) url(/img/linen.webp) center top/640px auto repeat;
-  -webkit-font-smoothing:antialiased;min-height:100vh;overflow-x:hidden;
-}
+body{font-family:var(--serif);color:var(--ink);line-height:1.6;background:var(--paper);-webkit-font-smoothing:antialiased;overflow-x:hidden}
 button,input,textarea{font-family:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--ink);outline-offset:3px}
 
-/* ---------- hero ---------- */
-.hero{position:relative;padding:56px 20px 28px;text-align:center;isolation:isolate}
-.bh{position:absolute;top:14px;right:18px;font-size:14px;color:var(--ink-deep);margin:0;letter-spacing:.02em}
-.flowers{position:absolute;top:0;left:0;width:min(58vw,380px);aspect-ratio:700/640;z-index:-1;
-  background:url(/img/flowers.webp) left top/cover no-repeat;
-  -webkit-mask-image:radial-gradient(ellipse 100% 100% at 0 0,#000 55%,transparent 98%);
-          mask-image:radial-gradient(ellipse 100% 100% at 0 0,#000 55%,transparent 98%)}
-.quote{display:block;width:min(78vw,440px);height:auto;margin:clamp(70px,22vw,120px) auto 0;margin-inline-start:auto;margin-inline-end:max(0px,calc(50% - 220px));opacity:.95}
-.logo{display:block;width:min(86vw,520px);height:auto;margin:clamp(34px,9vw,60px) auto 0;
-  filter:drop-shadow(0 1px 1px rgba(92,70,54,.55)) drop-shadow(0 3px 12px rgba(92,70,54,.28))}
-.dateline{margin:18px 0 0;font-size:17px;color:var(--ink);letter-spacing:.01em}
-.dateline small{display:block;font-size:14px;color:var(--soft);margin-top:2px}
+/* ---------- hero: the tablecloth ---------- */
+.hero{position:relative;isolation:isolate;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  padding:clamp(110px,30vw,150px) 5vw clamp(56px,12vw,100px);
+  background:var(--linen) url(/img/linen.webp) center top/clamp(420px,60vw,900px) auto repeat}
+.bh{position:absolute;top:clamp(12px,2vw,22px);right:clamp(14px,2.4vw,30px);margin:0;font-size:clamp(13px,1.4vw,18px);color:var(--ink-deep)}
+.flowers{position:absolute;top:0;left:0;width:clamp(240px,42vw,620px);aspect-ratio:720/660;z-index:-1;background:url(/img/flowers.webp) left top/contain no-repeat;pointer-events:none}
+.quote{display:block;width:clamp(240px,62vw,620px);height:auto;margin:0 auto}
+.names{display:block;width:clamp(280px,84vw,900px);height:auto;margin:clamp(26px,6vw,70px) auto 0;
+  filter:drop-shadow(0 1px 1px rgba(80,60,46,.55)) drop-shadow(0 4px 16px rgba(80,60,46,.3))}
+.date{margin:clamp(22px,5vw,56px) 0 0;font-size:clamp(28px,7.4vw,72px);font-weight:500;line-height:1.15;color:var(--ink-deep)}
+.greg{margin:clamp(4px,1vw,12px) 0 0;font-size:clamp(18px,4.4vw,36px);font-weight:300;color:var(--ink);letter-spacing:.04em}
+.count{display:flex;justify-content:center;gap:clamp(10px,2.6vw,28px);margin-top:clamp(26px,6vw,64px)}
+.count div{width:clamp(88px,26vw,190px);padding:clamp(12px,2.6vw,26px) 4px clamp(10px,2vw,20px);background:rgba(250,248,244,.62);border:1px solid rgba(255,255,255,.75);border-radius:clamp(14px,2.4vw,26px);box-shadow:0 2px 10px rgba(71,51,38,.08)}
+.count b{display:block;font-size:clamp(44px,13vw,120px);font-weight:300;line-height:1;font-variant-numeric:tabular-nums;color:var(--ink-deep)}
+.count span{display:block;margin-top:clamp(4px,1vw,10px);font-size:clamp(14px,3.6vw,24px);color:var(--soft)}
 
-.count{display:flex;justify-content:center;gap:10px;margin:22px auto 0}
-.count div{min-width:76px;padding:10px 8px 8px;background:rgba(250,248,244,.72);border:1px solid rgba(255,255,255,.7);border-radius:14px;box-shadow:0 1px 2px rgba(71,51,38,.06)}
-.count b{display:block;font-size:30px;font-weight:400;line-height:1.05;font-variant-numeric:tabular-nums}
-.count span{font-size:13px;color:var(--soft)}
+/* ---------- schedule on paper ---------- */
+.sec{padding:clamp(56px,10vw,120px) 6vw}
+.sec-in{max-width:760px;margin:0 auto;text-align:center}
+.sec h2{margin:0;font-size:clamp(30px,7vw,56px);font-weight:700;color:var(--ink-deep);line-height:1.15}
+.sec .sdate{margin:clamp(8px,1.6vw,16px) 0 0;font-size:clamp(20px,4.8vw,34px);font-weight:500}
+.sec .sgreg{margin:2px 0 0;font-size:clamp(15px,3.4vw,22px);color:var(--soft)}
+.ev{margin-top:clamp(40px,8vw,72px)}
+.ev::before{content:'';display:block;width:clamp(60px,14vw,110px);height:1px;background:var(--ink);opacity:.35;margin:0 auto clamp(40px,8vw,72px)}
+.ev h3{margin:0;font-size:clamp(22px,5.4vw,36px);font-weight:700;color:var(--ink-deep)}
+.ev .when{margin:6px 0 0;font-size:clamp(16px,3.8vw,24px)}
+.ev .time{font-size:clamp(46px,13vw,96px);font-weight:300;line-height:1.05;margin:clamp(4px,1vw,10px) 0;font-variant-numeric:tabular-nums}
+.ev .where{margin:6px 0 0;font-size:clamp(17px,4vw,26px)}
+.ev .where span{display:block;color:var(--soft);font-size:clamp(15px,3.5vw,22px)}
+.acts{display:flex;justify-content:center;gap:10px;margin-top:clamp(16px,3vw,26px);flex-wrap:wrap}
+.acts a{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;min-width:clamp(140px,36vw,200px);padding:0 20px;border-radius:999px;text-decoration:none;font-size:clamp(16px,3.6vw,19px);border:1px solid var(--ink);color:var(--ink)}
+.acts a.solid{background:var(--ink);color:var(--paper)}
+.acts svg{flex:none}
 
-/* ---------- paper cards ---------- */
-.wrap{max-width:600px;margin:0 auto;padding:8px 16px 0}
-.paper{position:relative;background:var(--paper);border-radius:6px;padding:46px 26px 40px;margin-top:22px;
-  box-shadow:0 1px 1px rgba(71,51,38,.05),0 14px 34px -12px rgba(71,51,38,.28)}
-.paper > *{position:relative;z-index:1}
-.paper::before,.paper::after{content:'';position:absolute;z-index:0;width:96px;height:88px;background:url(/img/rose.webp) center/cover no-repeat;opacity:.85;pointer-events:none}
-.paper::before{top:8px;left:8px;transform:scaleX(-1)}
-.paper::after{bottom:8px;right:8px;transform:scaleY(-1)}
-.paper h2{font-size:25px;font-weight:700;color:var(--ink-deep);text-align:center;margin:0 0 4px;letter-spacing:.01em}
-.paper .lead{text-align:center;margin:0 0 22px;color:var(--soft);font-size:16px}
-
-/* schedule */
-.ev{text-align:center;padding:0 6px}
-.ev + .ev{margin-top:26px}
-.ev + .ev::before{content:'';display:block;width:84px;height:1px;background:var(--ink);opacity:.35;margin:0 auto 26px}
-.ev h3{margin:0;font-size:20px;font-weight:700;color:var(--ink-deep)}
-.ev .when{margin:6px 0 0;font-size:16px}
-.ev .time{display:inline-block;font-size:30px;font-weight:300;line-height:1.1;margin:4px 0 2px;font-variant-numeric:tabular-nums;letter-spacing:.02em}
-.ev .where{margin:4px 0 0;font-size:16px;color:var(--ink)}
-.ev .where span{display:block;color:var(--soft);font-size:15px}
-.nav{display:flex;justify-content:center;gap:8px;margin-top:12px;flex-wrap:wrap}
-.nav a{display:inline-flex;align-items:center;min-height:40px;padding:0 16px;border:1px solid var(--line);border-radius:999px;color:var(--ink);text-decoration:none;font-size:15px;background:#fff}
-.nav a:active{background:var(--press)}
-
-/* rsvp */
-.hi{font-size:25px;font-weight:700;color:var(--ink-deep);text-align:center;margin:0}
-.sub{text-align:center;margin:2px 0 22px;color:var(--soft);font-size:16px}
-.qlab{display:block;font-size:16px;font-weight:500;margin:0 0 8px;color:var(--ink-deep)}
-.who3{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px}
-.opts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-@media (max-width:460px){.opts{grid-template-columns:1fr}.opt{min-height:52px}}
-.opt{min-height:54px;border:1px solid var(--line);background:#fff;border-radius:12px;font-size:17px;cursor:pointer;padding:6px 4px;line-height:1.2;transition:background-color .15s,color .15s,border-color .15s}
+/* ---------- rsvp on the cloth grey ---------- */
+.rsvp{background:var(--linen-soft);padding:clamp(56px,10vw,120px) 5vw}
+.card{max-width:640px;margin:0 auto;background:var(--cream);border-radius:clamp(18px,3vw,28px);padding:clamp(30px,6vw,56px) clamp(20px,5vw,52px);box-shadow:0 18px 44px -20px rgba(71,51,38,.35)}
+.hi{font-size:clamp(28px,6.4vw,46px);font-weight:700;color:var(--ink-deep);text-align:center;margin:0;line-height:1.2}
+.sub{text-align:center;margin:6px 0 clamp(22px,4vw,32px);color:var(--soft);font-size:clamp(16px,3.8vw,20px)}
+.qlab{display:block;font-size:clamp(16px,3.8vw,19px);font-weight:500;margin:0 0 10px;color:var(--ink-deep)}
+.who3{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:22px}
+.opts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:480px){.opts{grid-template-columns:1fr}}
+.opt{min-height:56px;border:1px solid var(--line);background:#fff;border-radius:14px;font-size:clamp(17px,4vw,20px);cursor:pointer;padding:6px 8px;line-height:1.2;transition:background-color .15s,color .15s,border-color .15s}
 .opt[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
-.opt:active{transform:scale(.98)}
-input.nm{width:100%;font-size:17px;border:1px solid var(--line);border-radius:12px;padding:14px;background:#fff;margin-bottom:18px}
+input.nm{width:100%;font-size:18px;border:1px solid var(--line);border-radius:14px;padding:15px;background:#fff;margin-bottom:22px}
 input.nm::placeholder,textarea::placeholder{color:#AA9C90}
-.ppl{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
-.ppl > div{background:var(--press);border-radius:14px;padding:12px 14px}
-.lab{display:block;font-size:15px;color:var(--soft);margin-bottom:6px}
+.ppl{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+.ppl > div{background:var(--press);border-radius:16px;padding:12px 14px}
+.lab{display:block;font-size:16px;color:var(--soft);margin-bottom:6px}
 .step{display:flex;align-items:center;justify-content:space-between}
-.step button{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:#fff;font-size:22px;line-height:1;cursor:pointer;color:var(--ink)}
+.step button{width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:#fff;font-size:22px;line-height:1;cursor:pointer;color:var(--ink)}
 .step button:disabled{opacity:.35;cursor:default}
-.step output{font-size:26px;min-width:2ch;text-align:center;font-variant-numeric:tabular-nums}
-label.f{display:block;margin:22px 0 8px;font-size:16px;color:var(--ink-deep)}
+.step output{font-size:28px;min-width:2ch;text-align:center;font-variant-numeric:tabular-nums}
+label.f{display:block;margin:24px 0 10px;font-size:clamp(16px,3.8vw,19px);color:var(--ink-deep)}
 label.f small,.sub small{color:var(--soft);font-weight:400}
-textarea{width:100%;font-size:16px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:#fff;resize:vertical;min-height:84px}
-.send{width:100%;min-height:56px;margin-top:22px;border:none;border-radius:999px;background:var(--ink);color:var(--paper);font-size:19px;font-weight:500;cursor:pointer;letter-spacing:.02em}
+textarea{width:100%;font-size:17px;border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:#fff;resize:vertical;min-height:90px}
+.send{width:100%;min-height:58px;margin-top:24px;border:none;border-radius:999px;background:var(--ink);color:var(--paper);font-size:20px;font-weight:500;cursor:pointer;letter-spacing:.02em}
 .send:disabled{background:#B9ACA0;cursor:default}
 .err{color:var(--err);text-align:center;min-height:1.2em;margin:10px 0 0;font-size:15px}
 .done{text-align:center;padding:6px 0}
-.ok{width:62px;height:62px;border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;border:1px solid var(--ink)}
-.done h3{font-size:24px;font-weight:700;margin:0 0 6px;color:var(--ink-deep)}
-.done p{margin:0;color:var(--soft);font-size:17px}
-.link{background:none;border:none;color:var(--ink);text-decoration:underline;text-underline-offset:4px;font-size:16px;margin-top:16px;cursor:pointer;min-height:44px}
+.ok{width:64px;height:64px;border-radius:50%;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;border:1px solid var(--ink)}
+.done h3{font-size:clamp(24px,5.6vw,34px);font-weight:700;margin:0 0 6px;color:var(--ink-deep)}
+.done p{margin:0;color:var(--soft);font-size:18px}
+.link{background:none;border:none;color:var(--ink);text-decoration:underline;text-underline-offset:4px;font-size:17px;margin-top:16px;cursor:pointer;min-height:44px}
 
-/* invitation thumb */
-.invbtn{display:block;width:100%;margin-top:22px;border:none;padding:0;background:none;cursor:zoom-in;text-align:center}
-.invbtn img{display:block;width:100%;height:auto;border-radius:6px;box-shadow:0 14px 34px -12px rgba(71,51,38,.35)}
-.invbtn span{display:inline-block;margin-top:10px;font-size:16px;color:var(--ink);text-decoration:underline;text-underline-offset:4px}
+/* invitation + footer on paper */
+.invsec{padding:clamp(56px,10vw,110px) 6vw 0;text-align:center}
+.invbtn{display:block;width:100%;max-width:560px;margin:0 auto;border:none;padding:0;background:none;cursor:zoom-in}
+.invbtn img{display:block;width:100%;height:auto;border-radius:8px;box-shadow:0 16px 40px -16px rgba(71,51,38,.4)}
+.invbtn span{display:inline-block;margin-top:14px;font-size:clamp(16px,3.8vw,20px);color:var(--ink);text-decoration:underline;text-underline-offset:4px}
+.foot{text-align:center;padding:clamp(48px,9vw,90px) 6vw clamp(56px,10vw,100px)}
+.parents{margin:0;font-size:clamp(15px,3.6vw,19px);color:var(--soft)}
+.parents b{display:block;font-weight:500;color:var(--ink);font-size:clamp(16px,3.9vw,21px);margin-top:4px}
+.yechi{margin:clamp(24px,5vw,40px) auto 0;max-width:620px;text-wrap:balance;font-size:clamp(20px,5.4vw,34px);font-weight:700;color:var(--ink-deep);line-height:1.35}
 
-/* footer */
-.foot{position:relative;text-align:center;padding:40px 20px 64px;overflow:hidden}
-.parents{margin:0;font-size:15px;color:var(--soft)}
-.parents b{display:block;font-weight:500;color:var(--ink);font-size:16px;margin-top:4px}
-.yechi{margin:26px auto 0;max-width:460px;text-wrap:balance;font-size:clamp(18px,5vw,26px);font-weight:700;color:var(--ink-deep);line-height:1.35}
-.ribbon{position:absolute;bottom:-10px;left:-30px;width:min(44vw,240px);aspect-ratio:710/540;z-index:-1;opacity:.95;
-  background:url(/img/ribbon.webp) center/cover no-repeat;
-  -webkit-mask-image:radial-gradient(ellipse 70% 70% at 50% 55%,#000 50%,transparent 100%);
-          mask-image:radial-gradient(ellipse 70% 70% at 50% 55%,#000 50%,transparent 100%)}
-.foot{isolation:isolate}
-
-/* lightbox */
 .lb{position:fixed;inset:0;z-index:50;background:rgba(36,26,19,.92);display:flex;align-items:center;justify-content:center;padding:16px;cursor:zoom-out}
 .lb img{max-width:100%;max-height:100%;border-radius:4px}
 .lb button{position:absolute;top:calc(12px + env(safe-area-inset-top));right:12px;min-height:44px;padding:0 16px;border-radius:999px;border:none;background:rgba(255,255,255,.14);color:#fff;font-size:16px;cursor:pointer}
 
-/* entrance */
+@media (min-width:900px){.hero{min-height:100svh;padding-top:clamp(70px,8vw,120px)}}
 @media (prefers-reduced-motion:no-preference){
-  .logo{animation:rise 1.1s cubic-bezier(.2,.7,.2,1) .15s both}
-  .quote{animation:fade 1.2s ease .05s both}
-  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .names{animation:rise 1.1s cubic-bezier(.2,.7,.2,1) .2s both}
+  .quote{animation:fade 1.2s ease both}
+  @keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
   @keyframes fade{from{opacity:0}to{opacity:1}}
-}
-@media (min-width:700px){
-  .hero{padding-top:70px}
-  .paper{padding:56px 48px 48px}
 }
 </style>
 </head>
@@ -145,50 +125,52 @@ textarea{width:100%;font-size:16px;border:1px solid var(--line);border-radius:12
   <p class="bh">ב״ה</p>
   <div class="flowers" aria-hidden="true"></div>
   <img class="quote" src="/img/quote.webp" alt="ברכה בכתב יד: צדי׳ טוב יהי׳ הבנין בנין עדי עד על יסודי התורה והמצוה בחיים מאושרים" width="1088" height="213">
-  <h1 style="margin:0"><img class="logo" src="/img/logo.webp" alt="מענדי ורבקה · י״ט טבת · בית זלטא כפר חב״ד" width="860" height="246"></h1>
-  <p class="dateline">יום שלישי, י״ט טבת ה׳תשפ״ז<small>29 בדצמבר 2026</small></p>
+  <h1 style="margin:0"><img class="names" src="/img/names.webp" alt="מענדי ורבקה" width="860" height="168"></h1>
+  <p class="date">יום שלישי, י״ט טבת ה׳תשפ״ז</p>
+  <p class="greg">29.12.2026</p>
   <div class="count" id="count" hidden aria-label="ספירה לאחור לחתונה">
     <div><b id="cd">0</b><span>ימים</span></div><div><b id="ch">0</b><span>שעות</span></div><div><b id="cm">0</b><span>דקות</span></div>
   </div>
-  <!-- fields the shared script fills; the design above is fixed -->
   <div hidden><span id="names"></span><span id="date"></span><span id="greg"></span><p id="msg"></p>
     <div id="schedBox"><div id="sched"></div></div><div id="venueBox"><b id="vn"></b><span id="va"></span><a id="waze"></a><a id="gmaps"></a></div></div>
 </header>
 
-<main class="wrap">
-  <section class="paper" aria-labelledby="schedT">
+<section class="sec" aria-labelledby="schedT">
+  <div class="sec-in">
     <h2 id="schedT">סדר האירועים</h2>
-    <p class="lead">בשעה טובה ומוצלחת</p>
+    <p class="sdate">יום שלישי, י״ט טבת ה׳תשפ״ז</p>
+    <p class="sgreg">29 בדצמבר 2026</p>
+
+    <div class="ev">
+      <h3>קבלת הפנים</h3>
+      <div class="time">16:45</div>
+      <p class="where">ישיבת ״תומכי תמימים״ ליובאוויטש<span>רח׳ טיבוביץ׳ 4, ראשון לציון</span></p>
+      <div class="acts">
+        <a class="solid" href="https://waze.com/ul?q=%D7%98%D7%99%D7%91%D7%95%D7%91%D7%99%D7%A5%204%20%D7%A8%D7%90%D7%A9%D7%95%D7%9F%20%D7%9C%D7%A6%D7%99%D7%95%D7%9F&navigate=yes" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>ניווט ב-Waze</a>
+        <a href="/cal/kabbalat-panim.ics"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>שמירה ביומן</a>
+      </div>
+    </div>
+
+    <div class="ev">
+      <h3>החופה וסעודת החתונה</h3>
+      <div class="time">18:30</div>
+      <p class="where">אולמי ״בית זלטא״<span>כפר חב״ד ב׳</span></p>
+      <div class="acts">
+        <a class="solid" href="https://waze.com/ul?q=%D7%91%D7%99%D7%AA%20%D7%96%D7%9C%D7%98%D7%90%20%D7%9B%D7%A4%D7%A8%20%D7%97%D7%91%D7%93&navigate=yes" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>ניווט ב-Waze</a>
+        <a href="/cal/chuppah.ics"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>שמירה ביומן</a>
+      </div>
+    </div>
 
     <div class="ev">
       <h3>העליה לתורה</h3>
       <p class="when">שבת קודש פרשת ויחי, ט״ז טבת</p>
       <p class="where">בית הכנסת ובית המדרש של הוד כ״ק אדמו״ר שליט״א מלך המשיח<span>770 איסטערן פארקוויי, ברוקלין נ.י.</span></p>
     </div>
+  </div>
+</section>
 
-    <div class="ev">
-      <h3>קבלת הפנים</h3>
-      <div class="time">16:45</div>
-      <p class="where">ישיבת ״תומכי תמימים״ ליובאוויטש<span>רח׳ טיבוביץ׳ 4, ראשון לציון</span></p>
-      <div class="nav">
-        <a href="https://waze.com/ul?q=%D7%98%D7%99%D7%91%D7%95%D7%91%D7%99%D7%A5%204%20%D7%A8%D7%90%D7%A9%D7%95%D7%9F%20%D7%9C%D7%A6%D7%99%D7%95%D7%9F&navigate=yes" target="_blank" rel="noopener">ניווט ב-Waze</a>
-        <a href="https://www.google.com/maps/search/?api=1&query=%D7%98%D7%99%D7%91%D7%95%D7%91%D7%99%D7%A5%204%20%D7%A8%D7%90%D7%A9%D7%95%D7%9F%20%D7%9C%D7%A6%D7%99%D7%95%D7%9F" target="_blank" rel="noopener">Google Maps</a>
-      </div>
-    </div>
-
-    <div class="ev">
-      <h3>החופה וסעודת החתונה</h3>
-      <p class="when">יום שלישי, י״ט טבת ה׳תשפ״ז</p>
-      <div class="time">18:30</div>
-      <p class="where">אולמי ״בית זלטא״<span>כפר חב״ד ב׳</span></p>
-      <div class="nav">
-        <a href="https://waze.com/ul?q=%D7%91%D7%99%D7%AA%20%D7%96%D7%9C%D7%98%D7%90%20%D7%9B%D7%A4%D7%A8%20%D7%97%D7%91%D7%93&navigate=yes" target="_blank" rel="noopener">ניווט ב-Waze</a>
-        <a href="https://www.google.com/maps/search/?api=1&query=%D7%91%D7%99%D7%AA%20%D7%96%D7%9C%D7%98%D7%90%20%D7%9B%D7%A4%D7%A8%20%D7%97%D7%91%D7%93" target="_blank" rel="noopener">Google Maps</a>
-      </div>
-    </div>
-  </section>
-
-  <section class="paper" aria-labelledby="hi">
+<section class="rsvp" aria-labelledby="hi">
+  <div class="card">
     <div id="form">
       <h2 class="hi" id="hi">אישור הגעה</h2>
       <p class="sub">נשמח לדעת אם תוכלו לשמוח איתנו</p>
@@ -222,13 +204,15 @@ textarea{width:100%;font-size:16px;border:1px solid var(--line);border-radius:12
       <h3 id="doneT"></h3><p id="doneP"></p>
       <button class="link" id="edit" type="button">לשינוי התשובה</button>
     </div>
-  </section>
+  </div>
+</section>
 
+<section class="invsec">
   <button class="invbtn" id="invOpen" type="button" aria-label="פתיחת ההזמנה בגדול">
     <img src="/img/invitation.webp" alt="ההזמנה לחתונה של מענדי ורבקה" loading="lazy" width="1200" height="1411">
     <span>לצפייה בהזמנה</span>
   </button>
-</main>
+</section>
 
 <footer class="foot">
   <p class="parents">מוקיריהם ומכבדיהם<b>מרדכי וחנה נמירובסקי · דורון ודיאמנט ברגר</b></p>
