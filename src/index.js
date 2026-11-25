@@ -1,3 +1,14 @@
+import RIVKA_PAGE from './guest-rivka.html';
+import IMG_LINEN from './img/linen.webp';
+import IMG_FLOWERS from './img/flowers.webp';
+import IMG_RIBBON from './img/ribbon.webp';
+import IMG_LOGO from './img/logo.webp';
+import IMG_QUOTE from './img/quote.webp';
+import IMG_ROSE from './img/rose.webp';
+import IMG_INV from './img/invitation.webp';
+import IMG_INV_JPG from './img/invitation.jpg';
+const IMAGES = { 'linen.webp': IMG_LINEN, 'flowers.webp': IMG_FLOWERS, 'ribbon.webp': IMG_RIBBON, 'logo.webp': IMG_LOGO,
+  'quote.webp': IMG_QUOTE, 'rose.webp': IMG_ROSE, 'invitation.webp': IMG_INV, 'invitation.jpg': IMG_INV_JPG };
 // אתר אישורי הגעה לחתונה — Cloudflare Worker + D1
 // נתיבים:
 //   /r/<token>#<details>  דף אישור ההגעה האישי של כל מוזמן
@@ -22,6 +33,11 @@ export default {
       const ph = await photosRoute(request, env, path, url);
       if (ph) return ph;
       if (path === '/app') return html(APP_HTML);
+      if (path.startsWith('/img/')) {
+        const f = IMAGES[path.slice(5)];
+        if (!f) return new Response('Not found', { status: 404 });
+        return new Response(f, { headers: { 'content-type': path.endsWith('.jpg') ? 'image/jpeg' : 'image/webp', 'cache-control': 'public, max-age=604800' } });
+      }
       if (path === '/rsvp' && request.method === 'GET') return guestPage(env, url.origin);
       {
         const om = path.match(/^\/api\/open\/([^/]+)$/);
@@ -139,15 +155,10 @@ async function inviteImage(env) {
   return new Response(u, { headers: { 'content-type': 'image/' + m[1], 'cache-control': 'public, max-age=300' } });
 }
 async function guestPage(env, origin) {
-  const s = (await plannerDoc(env, 'planner', 'settings').catch(() => null)) || {};
-  const inv = await plannerDoc(env, 'planner', 'invite').catch(() => null);
-  const title = esc(s.title || 'החתונה שלנו');
-  const og = `<meta property="og:title" content="${title}"><meta property="og:description" content="הזמנה לחתונה. נשמח שתאשרו הגעה"><meta property="og:type" content="website">` +
-    (inv && inv.img ? `<meta property="og:image" content="${origin}/invite.jpg"><meta name="twitter:card" content="summary_large_image">` : '');
-  const has = !!(inv && inv.img);
-  return html(GUEST_PAGE.replace('<meta name="robots" content="noindex">', '<meta name="robots" content="noindex">' + og)
-    .replace('<!--INVITE-->', has ? '<div class="wrap" style="padding:0"><img class="inv" src="/invite.jpg" alt="ההזמנה לחתונה"></div>' : '')
-    .replace('INVCLS', has ? '' : 'top'));
+  // עמוד אישור ההגעה של רבקה ומענדי (עיצוב לפי ההזמנה)
+  const og = `<meta property="og:title" content="מענדי ורבקה · י״ט טבת"><meta property="og:description" content="נשמח שתאשרו הגעה לחתונה"><meta property="og:type" content="website">` +
+    `<meta property="og:image" content="${origin}/img/invitation.jpg"><meta name="twitter:card" content="summary_large_image">`;
+  return html(RIVKA_PAGE.split('<!--OG-->').join(og).split('/*GUEST_JS*/').join(GUEST_JS));
 }
 function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 

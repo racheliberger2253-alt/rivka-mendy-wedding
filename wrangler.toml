@@ -7,6 +7,11 @@ type = "Text"
 globs = ["**/*.html"]
 fallthrough = false
 
+[[rules]]
+type = "Data"
+globs = ["**/*.webp", "**/*.jpg"]
+fallthrough = false
+
 # מסד הנתונים והאחסון נוצרים אוטומטית בפריסה הראשונה
 [[d1_databases]]
 binding = "DB"
