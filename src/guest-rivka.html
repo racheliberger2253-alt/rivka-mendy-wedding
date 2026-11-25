@@ -15,7 +15,9 @@
   --ink:#47332A;--ink-deep:#2C1F16;--soft:#7D6B5D;--paper:#F8F4EE;--cloth:#D3CABF;
   --line:#E6DED4;--err:#9B2C2C;--font:'Noto Sans Hebrew',system-ui,sans-serif;--head:'Frank Ruhl Libre',Georgia,serif;
 }
-*{box-sizing:border-box}html,body{margin:0}[hidden]{display:none!important}
+*{box-sizing:border-box}html,body{margin:0;max-width:100%;overflow-x:hidden;overflow-x:clip;overscroll-behavior-x:none}
+img,svg{max-width:100%}
+section,header,footer{max-width:100vw;overflow-x:clip}[hidden]{display:none!important}
 html{scroll-behavior:smooth}
 body{font-family:var(--font);color:var(--ink);line-height:1.6;background:var(--paper);-webkit-font-smoothing:antialiased;overflow-x:hidden}
 button,input,textarea{font-family:inherit;color:inherit}
