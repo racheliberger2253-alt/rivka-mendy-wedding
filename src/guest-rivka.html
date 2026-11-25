@@ -8,7 +8,7 @@
 <title>מענדי ורבקה · אישור הגעה</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@300;400;500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@200;300;400;500;600;700;800&display=swap">
 <link rel="preload" as="image" href="/img/names.webp">
 <style>
 :root{
@@ -22,7 +22,7 @@
   --line:#DCD1C4;
   --press:#EDE5D9;
   --err:#9B2C2C;
-  --serif:'Frank Ruhl Libre','David Libre',Georgia,serif;
+  --serif:'Assistant',system-ui,sans-serif;
 }
 *{box-sizing:border-box}
 html,body{margin:0}
@@ -32,10 +32,11 @@ button,input,textarea{font-family:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--ink);outline-offset:3px}
 
 /* ---------- hero: the tablecloth ---------- */
-.hero{position:relative;isolation:isolate;min-height:100vh;min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:space-evenly;text-align:center;
+.hero{position:relative;isolation:isolate;overflow:hidden;min-height:100vh;min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:space-evenly;text-align:center;
   padding:clamp(96px,26vw,150px) 5vw clamp(36px,8vw,90px);
   background:#DCD4CA url(/img/cloth-p.webp) left top/cover no-repeat}
 
+.scrollcue{position:absolute;bottom:clamp(10px,2.4vh,24px);left:50%;margin-left:-22px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:var(--ink);opacity:.7}
 .bh{position:absolute;top:clamp(12px,2vw,22px);right:clamp(14px,2.4vw,30px);margin:0;font-size:clamp(13px,1.4vw,18px);color:var(--ink-deep)}
 .quote{display:block;width:clamp(240px,62vw,620px);height:auto;margin:0 auto}
 .names{display:block;width:clamp(280px,84vw,900px);height:auto;margin:clamp(26px,6vw,70px) auto 0;
@@ -47,56 +48,74 @@ button,input,textarea{font-family:inherit;color:inherit}
 .count b{display:block;font-size:clamp(44px,13vw,120px);font-weight:300;line-height:1;font-variant-numeric:tabular-nums;color:var(--ink-deep)}
 .count span{display:block;margin-top:clamp(4px,1vw,10px);font-size:clamp(14px,3.6vw,24px);color:var(--soft)}
 
-/* ---------- schedule on paper ---------- */
-.sec{padding:clamp(56px,10vw,120px) 6vw}
-.sec-in{max-width:760px;margin:0 auto;text-align:center}
-.sec h2{margin:0;font-size:clamp(30px,7vw,56px);font-weight:700;color:var(--ink-deep);line-height:1.15}
-.sec h3{margin:0;font-size:clamp(22px,5.4vw,34px);font-weight:700;color:var(--ink-deep);line-height:1.2}
-.where{margin:6px 0 0;font-size:clamp(17px,4vw,24px)}
-.where span{display:block;color:var(--soft);font-size:clamp(15px,3.5vw,21px)}
-.aliya{margin-top:clamp(32px,7vw,60px)}
-.aliya .when{margin:6px 0 0;font-size:clamp(17px,4vw,24px)}
-.day{margin-top:clamp(48px,10vw,90px);padding-top:clamp(40px,8vw,72px);border-top:1px solid rgba(71,51,38,.22)}
-.sdate{margin:0;font-size:clamp(26px,6.6vw,48px);font-weight:700;color:var(--ink-deep);line-height:1.2}
-.sgreg{margin:4px 0 0;font-size:clamp(16px,3.8vw,24px);color:var(--soft)}
-/* timeline: time | line | details */
-.tl{list-style:none;margin:clamp(32px,7vw,60px) auto 0;padding:0;text-align:right;max-width:640px}
-.tl li{display:grid;grid-template-columns:clamp(84px,24vw,170px) 28px 1fr;column-gap:clamp(10px,3vw,24px);position:relative}
-.tl li + li{margin-top:clamp(34px,7vw,56px)}
-.tt{font-size:clamp(32px,9vw,64px);font-weight:300;line-height:1;font-variant-numeric:tabular-nums;color:var(--ink-deep);text-align:left;padding-top:2px}
+/* ---------- schedule: interactive timeline ---------- */
+.sec{padding:clamp(56px,10vw,120px) 5vw}
+.sec-in{max-width:780px;margin:0 auto}
+.sec h2{margin:0;text-align:center;font-size:clamp(34px,8vw,60px);font-weight:800;color:var(--ink-deep);line-height:1.1;letter-spacing:-.01em}
+.tl{--tw:clamp(74px,21vw,150px);--dw:30px;--gap:clamp(10px,3vw,24px);list-style:none;position:relative;margin:clamp(36px,8vw,70px) auto 0;padding:0}
+.tl::before,.tl-fill{content:'';position:absolute;top:10px;bottom:10px;right:calc(var(--tw) + var(--gap) + var(--dw)/2 - 1px);width:2px;border-radius:2px;background:rgba(71,51,38,.14)}
+.tl-fill{background:var(--ink);bottom:auto;height:0;transition:height .15s linear;list-style:none}
+.tl > li:not(.tl-fill){display:grid;grid-template-columns:var(--tw) var(--dw) 1fr;column-gap:var(--gap);position:relative}
+.tl > li + li{margin-top:clamp(22px,5vw,40px)}
+.tl .day{margin-top:clamp(40px,9vw,70px)}
+.tl-fill + .day{margin-top:0}
+.tt{font-size:clamp(28px,8vw,56px);font-weight:200;line-height:1;font-variant-numeric:tabular-nums;color:var(--ink-deep);text-align:left;padding-top:clamp(14px,3vw,22px)}
+.tt.small{font-size:clamp(18px,4.6vw,28px);font-weight:400;color:var(--soft);padding-top:clamp(22px,4.4vw,30px)}
 .tdot{position:relative}
-.tdot::before{content:'';position:absolute;top:clamp(8px,2.2vw,18px);left:50%;width:13px;height:13px;margin-left:-6.5px;border-radius:50%;background:var(--paper);border:2px solid var(--ink)}
-.tl li:not(:last-child) .tdot::after{content:'';position:absolute;top:calc(clamp(8px,2.2vw,18px) + 17px);bottom:calc(-1 * clamp(34px,7vw,56px) + 2px);left:50%;width:1px;background:rgba(71,51,38,.35)}
-.tc{min-width:0}
-.acts{display:flex;gap:10px;margin-top:clamp(14px,3vw,22px);flex-wrap:wrap}
-.acts a{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 18px;border-radius:999px;text-decoration:none;font-size:clamp(16px,3.6vw,19px);border:1px solid var(--ink);color:var(--ink);white-space:nowrap}
+.tdot::before{content:'';position:absolute;top:clamp(20px,4vw,30px);left:50%;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:var(--paper);border:2px solid rgba(71,51,38,.35);transition:background-color .35s,border-color .35s,transform .35s}
+.tdot.big::before{top:12px;width:22px;height:22px;margin-left:-11px}
+.tl li.on .tdot::before{background:var(--ink);border-color:var(--ink);transform:scale(1.12)}
+.tl li.on .tdot.big::before{box-shadow:0 0 0 6px rgba(71,51,38,.10)}
+.dname{margin:0;font-size:clamp(26px,6.6vw,44px);font-weight:800;color:var(--ink-deep);line-height:1.1}
+.dsub{margin:4px 0 0;font-size:clamp(16px,3.9vw,22px);color:var(--soft)}
+.evcard{background:#fff;border-radius:clamp(16px,2.6vw,22px);padding:clamp(16px,3.6vw,26px) clamp(16px,3.8vw,28px);box-shadow:0 1px 2px rgba(71,51,38,.06),0 10px 28px -14px rgba(71,51,38,.28);transition:transform .35s cubic-bezier(.2,.7,.2,1),box-shadow .35s}
+.evcard:hover{transform:translateY(-3px);box-shadow:0 2px 4px rgba(71,51,38,.06),0 18px 36px -16px rgba(71,51,38,.35)}
+.evcard h3{margin:0;font-size:clamp(21px,5.2vw,30px);font-weight:700;color:var(--ink-deep);line-height:1.2}
+.where{margin:6px 0 0;font-size:clamp(16px,3.9vw,21px);line-height:1.45}
+.where span{display:block;color:var(--soft);font-size:clamp(15px,3.5vw,19px)}
+.acts{display:flex;gap:10px;margin-top:clamp(14px,3vw,20px);flex-wrap:wrap}
+.acts a{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:0 18px;border-radius:999px;text-decoration:none;font-size:clamp(16px,3.6vw,18px);font-weight:500;border:1px solid var(--ink);color:var(--ink);white-space:nowrap;transition:transform .2s,background-color .2s,color .2s}
+.acts a:hover{transform:translateY(-2px)}
+.acts a:active{transform:scale(.97)}
 .acts a.solid{background:var(--ink);color:var(--paper)}
-.acts svg{flex:none}
+.acts a:not(.solid):hover{background:var(--ink);color:var(--paper)}
 @media (max-width:560px){.acts{flex-direction:column}.acts a{width:100%}}
+@media (max-width:640px){
+  .tl{--dw:26px;--gap:14px}
+  .tl::before,.tl-fill{right:calc(var(--dw)/2 - 1px)}
+  .tl > li:not(.tl-fill){grid-template-columns:var(--dw) 1fr;grid-template-areas:"dot tt" "dot tc"}
+  .tl .tdot{grid-area:dot}.tl .tt{grid-area:tt;text-align:right;padding:0 0 8px;font-size:clamp(34px,10vw,44px)}
+  .tl .tt:empty{display:none}.tl .tt.small{font-size:18px;padding:0 0 6px}
+  .tl .tc{grid-area:tc}
+  .tdot::before{top:10px}.tdot.big::before{top:8px}
+}
 
 /* ---------- rsvp on the cloth grey ---------- */
 .rsvp{background:var(--linen-soft);padding:clamp(56px,10vw,120px) 5vw}
-.card{max-width:640px;margin:0 auto;background:var(--paper);border-radius:clamp(18px,3vw,28px);padding:clamp(30px,6vw,56px) clamp(20px,5vw,52px);box-shadow:0 18px 44px -20px rgba(71,51,38,.35)}
+.card{max-width:640px;margin:0 auto;background:#fff;border-radius:clamp(18px,3vw,28px);padding:clamp(30px,6vw,56px) clamp(20px,5vw,52px);box-shadow:0 18px 44px -20px rgba(71,51,38,.35)}
 .hi{font-size:clamp(28px,6.4vw,46px);font-weight:700;color:var(--ink-deep);text-align:center;margin:0;line-height:1.2}
 .sub{text-align:center;margin:6px 0 clamp(22px,4vw,32px);color:var(--soft);font-size:clamp(16px,3.8vw,20px)}
 .qlab{display:block;font-size:clamp(16px,3.8vw,19px);font-weight:500;margin:0 0 10px;color:var(--ink-deep)}
 .who3{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:22px}
 .opts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 @media (max-width:480px){.opts{grid-template-columns:1fr}}
-.opt{min-height:56px;border:none;background:var(--paper);box-shadow:0 1px 2px rgba(71,51,38,.08),0 4px 14px rgba(71,51,38,.10);border-radius:14px;font-size:clamp(17px,4vw,20px);cursor:pointer;padding:6px 8px;line-height:1.2;transition:background-color .15s,color .15s,border-color .15s}
-.opt[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
-input.nm{width:100%;font-size:18px;border:none;border-radius:14px;padding:15px;background:var(--paper);box-shadow:inset 0 1px 3px rgba(71,51,38,.10),0 4px 14px rgba(71,51,38,.08);margin-bottom:22px}
+.opt{min-height:56px;border:1px solid #E6DED4;background:#fff;box-shadow:0 1px 2px rgba(71,51,38,.08),0 4px 14px rgba(71,51,38,.10);border-radius:14px;font-size:clamp(17px,4vw,20px);cursor:pointer;padding:6px 8px;line-height:1.2;transition:background-color .15s,color .15s,border-color .15s}
+.opt[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper);transform:scale(1.01)}
+.opt:hover{border-color:#CDBFB0}
+.opt:active{transform:scale(.98)}
+input.nm:focus,textarea:focus{outline:none;border-color:var(--ink);box-shadow:0 0 0 3px rgba(71,51,38,.10)}
+input.nm{width:100%;font-size:18px;border:1px solid #E6DED4;border-radius:14px;padding:15px;background:#fff;box-shadow:inset 0 1px 3px rgba(71,51,38,.10),0 4px 14px rgba(71,51,38,.08);margin-bottom:22px}
 input.nm::placeholder,textarea::placeholder{color:#AA9C90}
 .ppl{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
-.ppl > div{background:var(--paper);box-shadow:0 1px 2px rgba(71,51,38,.08),0 4px 14px rgba(71,51,38,.10);border-radius:16px;padding:12px 14px}
+.ppl > div{border:1px solid #E6DED4;background:#fff;box-shadow:0 1px 2px rgba(71,51,38,.08),0 4px 14px rgba(71,51,38,.10);border-radius:16px;padding:12px 14px}
 .lab{display:block;font-size:16px;color:var(--soft);margin-bottom:6px}
 .step{display:flex;align-items:center;justify-content:space-between}
-.step button{width:46px;height:46px;border-radius:50%;border:none;background:var(--paper);box-shadow:0 1px 2px rgba(71,51,38,.12),0 3px 10px rgba(71,51,38,.12);font-size:22px;line-height:1;cursor:pointer;color:var(--ink)}
+.step button{width:46px;height:46px;border-radius:50%;border:1px solid #E6DED4;background:#fff;box-shadow:0 1px 2px rgba(71,51,38,.12),0 3px 10px rgba(71,51,38,.12);font-size:22px;line-height:1;cursor:pointer;color:var(--ink)}
 .step button:disabled{opacity:.35;cursor:default}
 .step output{font-size:28px;min-width:2ch;text-align:center;font-variant-numeric:tabular-nums}
 label.f{display:block;margin:24px 0 10px;font-size:clamp(16px,3.8vw,19px);color:var(--ink-deep)}
 label.f small,.sub small{color:var(--soft);font-weight:400}
-textarea{width:100%;font-size:17px;border:none;border-radius:14px;padding:12px 14px;background:var(--paper);box-shadow:inset 0 1px 3px rgba(71,51,38,.10),0 4px 14px rgba(71,51,38,.08);resize:vertical;min-height:90px}
+textarea{width:100%;font-size:17px;border:1px solid #E6DED4;border-radius:14px;padding:12px 14px;background:#fff;box-shadow:inset 0 1px 3px rgba(71,51,38,.10),0 4px 14px rgba(71,51,38,.08);resize:vertical;min-height:90px}
 .send{width:100%;min-height:58px;margin-top:24px;border:none;border-radius:999px;background:var(--ink);color:var(--paper);font-size:20px;font-weight:500;cursor:pointer;letter-spacing:.02em}
 .send:disabled{background:#B9ACA0;cursor:default}
 .err{color:var(--err);text-align:center;min-height:1.2em;margin:10px 0 0;font-size:15px}
@@ -122,11 +141,21 @@ textarea{width:100%;font-size:17px;border:none;border-radius:14px;padding:12px 1
 
 @media (max-width:899px){.names,.date,.count{margin-top:0}}
 @media (prefers-reduced-motion:no-preference){
-  .names{animation:rise 1.1s cubic-bezier(.2,.7,.2,1) .2s both}
-  .quote{animation:fade 1.2s ease both}
-  @keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
-  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .hero::after{content:'';position:absolute;inset:0;z-index:-1;background:inherit;animation:breathe 22s ease-in-out infinite alternate;transform-origin:20% 10%}
+  @keyframes breathe{from{transform:scale(1)}to{transform:scale(1.06)}}
+  .hero .quote{animation:fadeUp 1s cubic-bezier(.2,.7,.2,1) .1s both}
+  .hero h1{animation:fadeUp 1.1s cubic-bezier(.2,.7,.2,1) .35s both}
+  .hero .when-b{animation:fadeUp 1s cubic-bezier(.2,.7,.2,1) .65s both}
+  .hero .count{animation:fadeUp 1s cubic-bezier(.2,.7,.2,1) .9s both}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+  .count b.tick{animation:tick .5s cubic-bezier(.2,.7,.2,1)}
+  @keyframes tick{from{opacity:.2;transform:translateY(-8px)}to{opacity:1;transform:none}}
+  .rv{opacity:0;transform:translateY(26px);transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1)}
+  .rv.in{opacity:1;transform:none}
+  .scrollcue{animation:bob 2.2s ease-in-out infinite}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(7px)}}
 }
+
 @media (min-aspect-ratio:1/1){
   .hero{background-image:url(/img/cloth.webp);height:100svh;min-height:560px;padding-top:6vh;padding-bottom:5vh;justify-content:space-evenly}
   .quote{width:min(46vw,48vh)}
@@ -152,56 +181,59 @@ textarea{width:100%;font-size:17px;border:none;border-radius:14px;padding:12px 1
   <div class="count" id="count" hidden aria-label="ספירה לאחור לחתונה">
     <div><b id="cm">0</b><span>דקות</span></div><div><b id="ch">0</b><span>שעות</span></div><div><b id="cd">0</b><span>ימים</span></div>
   </div>
+  <a class="scrollcue" href="#schedT" aria-label="לסדר האירועים"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></a>
   <div hidden><span id="names"></span><span id="date"></span><span id="greg"></span><p id="msg"></p>
     <div id="schedBox"><div id="sched"></div></div><div id="venueBox"><b id="vn"></b><span id="va"></span><a id="waze"></a><a id="gmaps"></a></div></div>
 </header>
 
 <section class="sec" aria-labelledby="schedT">
   <div class="sec-in">
-    <h2 id="schedT">סדר האירועים</h2>
-
-    <div class="aliya">
-      <h3>העליה לתורה</h3>
-      <p class="when">שבת קודש פרשת ויחי, ט״ז טבת</p>
-      <p class="where">בית הכנסת ובית המדרש של הוד כ״ק אדמו״ר שליט״א מלך המשיח<span>770 איסטערן פארקוויי, ברוקלין נ.י.</span></p>
-    </div>
-
-    <div class="day">
-      <p class="sdate">יום שלישי, י״ט טבת ה׳תשפ״ז</p>
-      <p class="sgreg">29 בדצמבר 2026</p>
-    </div>
-
-    <ol class="tl">
-      <li>
-        <div class="tt">16:45</div>
-        <div class="tdot" aria-hidden="true"></div>
-        <div class="tc">
+    <h2 id="schedT" class="rv">סדר האירועים</h2>
+    <ol class="tl" id="tl">
+      <li class="tl-fill" aria-hidden="true"></li>
+      <li class="day rv">
+        <div class="tt"></div><div class="tdot big" aria-hidden="true"></div>
+        <div class="tc"><p class="dname">שבת קודש</p><p class="dsub">פרשת ויחי · ט״ז טבת</p></div>
+      </li>
+      <li class="ev rv">
+        <div class="tt"></div><div class="tdot" aria-hidden="true"></div>
+        <div class="tc"><div class="evcard">
+          <h3>העליה לתורה</h3>
+          <p class="where">בית הכנסת ובית המדרש של הוד כ״ק אדמו״ר שליט״א מלך המשיח<span>770 איסטערן פארקוויי, ברוקלין נ.י.</span></p>
+        </div></div>
+      </li>
+      <li class="day rv">
+        <div class="tt"></div><div class="tdot big" aria-hidden="true"></div>
+        <div class="tc"><p class="dname">יום שלישי</p><p class="dsub">י״ט טבת ה׳תשפ״ז · 29.12.2026</p></div>
+      </li>
+      <li class="ev rv">
+        <div class="tt">16:45</div><div class="tdot" aria-hidden="true"></div>
+        <div class="tc"><div class="evcard">
           <h3>קבלת הפנים</h3>
           <p class="where">ישיבת ״תומכי תמימים״ ליובאוויטש<span>רח׳ טיבוביץ׳ 4, ראשון לציון</span></p>
           <div class="acts">
         <a class="solid" href="https://waze.com/ul?q=%D7%98%D7%99%D7%91%D7%95%D7%91%D7%99%D7%A5%204%20%D7%A8%D7%90%D7%A9%D7%95%D7%9F%20%D7%9C%D7%A6%D7%99%D7%95%D7%9F&navigate=yes" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>ניווט ב-Waze</a>
         <a href="/cal/kabbalat-panim.ics"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>שמירה ביומן</a>
       </div>
-        </div>
+        </div></div>
       </li>
-      <li>
-        <div class="tt">18:30</div>
-        <div class="tdot" aria-hidden="true"></div>
-        <div class="tc">
+      <li class="ev rv">
+        <div class="tt">18:30</div><div class="tdot" aria-hidden="true"></div>
+        <div class="tc"><div class="evcard">
           <h3>החופה וסעודת החתונה</h3>
           <p class="where">אולמי ״בית זלטא״<span>כפר חב״ד ב׳</span></p>
           <div class="acts">
         <a class="solid" href="https://waze.com/ul?q=%D7%91%D7%99%D7%AA%20%D7%96%D7%9C%D7%98%D7%90%20%D7%9B%D7%A4%D7%A8%20%D7%97%D7%91%D7%93&navigate=yes" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>ניווט ב-Waze</a>
         <a href="/cal/chuppah.ics"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>שמירה ביומן</a>
       </div>
-        </div>
+        </div></div>
       </li>
     </ol>
   </div>
 </section>
 
 <section class="rsvp" aria-labelledby="hi">
-  <div class="card">
+  <div class="card rv">
     <div id="form">
       <h2 class="hi" id="hi">אישור הגעה</h2>
       <p class="sub">נשמח לדעת אם תוכלו לשמוח איתנו</p>
@@ -239,7 +271,7 @@ textarea{width:100%;font-size:17px;border:none;border-radius:14px;padding:12px 1
 </section>
 
 <section class="invsec">
-  <button class="invbtn" id="invOpen" type="button" aria-label="פתיחת ההזמנה בגדול">
+  <button class="invbtn rv" id="invOpen" type="button" aria-label="פתיחת ההזמנה בגדול">
     <img src="/img/invitation.webp" alt="ההזמנה לחתונה של מענדי ורבקה" loading="lazy" width="1200" height="1411">
     <span>לצפייה בהזמנה</span>
   </button>
@@ -247,7 +279,7 @@ textarea{width:100%;font-size:17px;border:none;border-radius:14px;padding:12px 1
 
 <footer class="foot">
   <p class="parents">מוקיריהם ומכבדיהם<b>מרדכי וחנה נמירובסקי · דורון ודיאמנט ברגר</b></p>
-  <p class="yechi">יחי אדוננו מורנו ורבינו מלך המשיח לעולם ועד</p>
+  <p class="yechi rv">יחי אדוננו מורנו ורבינו מלך המשיח לעולם ועד</p>
 </footer>
 
 <div class="lb" id="lb" hidden role="dialog" aria-modal="true" aria-label="ההזמנה">
@@ -262,6 +294,19 @@ textarea{width:100%;font-size:17px;border:none;border-radius:14px;padding:12px 1
   function close(){lb.hidden=true;document.body.style.overflow='';}
   lb.onclick=function(e){if(e.target!==lb.querySelector('img'))close();};
   document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!lb.hidden)close();});
+  // reveal on scroll
+  var rv=document.querySelectorAll('.rv');
+  if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es){es.forEach(function(x){if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target);}});},{rootMargin:'0px 0px -12% 0px'});rv.forEach(function(el){io.observe(el);});}
+  else rv.forEach(function(el){el.classList.add('in');});
+  // timeline progress follows the scroll
+  var tl=document.getElementById('tl'),fill=tl.querySelector('.tl-fill'),items=tl.querySelectorAll('li:not(.tl-fill)'),raf=0;
+  function prog(){raf=0;var vh=window.innerHeight,r=tl.getBoundingClientRect(),mark=vh*0.62;
+    var h=Math.max(0,Math.min(r.height-20,mark-r.top-10));fill.style.height=h+'px';
+    items.forEach(function(li){var d=li.querySelector('.tdot').getBoundingClientRect();li.classList.toggle('on',d.top+16<mark);});}
+  window.addEventListener('scroll',function(){if(!raf)raf=requestAnimationFrame(prog);},{passive:true});window.addEventListener('resize',prog);prog();
+  // countdown digits animate when they change
+  ['cd','ch','cm'].forEach(function(id){var b=document.getElementById(id),last=b.textContent;
+    new MutationObserver(function(){if(b.textContent!==last){last=b.textContent;b.classList.remove('tick');void b.offsetWidth;b.classList.add('tick');}}).observe(b,{childList:true,characterData:true,subtree:true});});
 })();
 </script>
 <script>/*GUEST_JS*/</script>
