@@ -1,11 +1,11 @@
 import RIVKA_PAGE from './guest-rivka.html';
-import IMG_LINEN from './img/linen.webp';
-import IMG_FLOWERS from './img/flowers.webp';
+import IMG_CLOTH from './img/cloth.webp';
+import IMG_CLOTH_P from './img/cloth-p.webp';
 import IMG_NAMES from './img/names.webp';
 import IMG_QUOTE from './img/quote.webp';
 import IMG_INV from './img/invitation.webp';
 import IMG_INV_JPG from './img/invitation.jpg';
-const IMAGES = { 'linen.webp': IMG_LINEN, 'flowers.webp': IMG_FLOWERS, 'names.webp': IMG_NAMES,
+const IMAGES = { 'cloth.webp': IMG_CLOTH, 'cloth-p.webp': IMG_CLOTH_P, 'names.webp': IMG_NAMES,
   'quote.webp': IMG_QUOTE, 'invitation.webp': IMG_INV, 'invitation.jpg': IMG_INV_JPG };
 // קבצי יומן (שעון ישראל בחורף = UTC+2)
 const CAL = {
