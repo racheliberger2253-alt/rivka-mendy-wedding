@@ -2,11 +2,11 @@ import RIVKA_PAGE from './guest-rivka.html';
 import IMG_CLOTH from './img/cloth.webp';
 import IMG_CLOTH_P from './img/cloth-p.webp';
 import IMG_NAMES from './img/names.webp';
-import IMG_QUOTE from './img/quote.webp';
+import IMG_QUOTE from './img/quote3.webp';
 import IMG_INV from './img/invitation.webp';
 import IMG_INV_JPG from './img/invitation.jpg';
 const IMAGES = { 'cloth.webp': IMG_CLOTH, 'cloth-p.webp': IMG_CLOTH_P, 'names.webp': IMG_NAMES,
-  'quote.webp': IMG_QUOTE, 'invitation.webp': IMG_INV, 'invitation.jpg': IMG_INV_JPG };
+  'quote3.webp': IMG_QUOTE, 'invitation.webp': IMG_INV, 'invitation.jpg': IMG_INV_JPG };
 // קבצי יומן (שעון ישראל בחורף = UTC+2)
 const CAL = {
   'kabbalat-panim.ics': { title: 'קבלת הפנים - מענדי ורבקה', start: '20261229T144500Z', end: '20261229T163000Z',

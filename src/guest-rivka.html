@@ -32,9 +32,11 @@ h1,h2,h3,.date,.dname,.tcard h3,.hi,.done h3,.yechi,.parents2 b,.clock b,.tcard 
 /* ---------- hero (the tablecloth) ---------- */
 .hero{position:relative;isolation:isolate;overflow:hidden;min-height:100vh;min-height:100svh;display:flex;flex-direction:column;text-align:center;
   background:#DCD4CA url(/img/cloth-p.webp) left top/cover no-repeat}
-.hero-top{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:space-evenly;padding:max(175px,21svh) 5vw clamp(40px,8vw,70px)}
+.hero-top{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:space-evenly;padding:max(210px,27svh) 5vw clamp(40px,8vw,70px)}
+.hero-top .when-b{margin-top:auto;margin-bottom:auto}
+.hero-top .who{margin-top:0}
 .bh{position:absolute;top:clamp(12px,2vw,22px);right:clamp(14px,2.4vw,30px);margin:0;font-size:clamp(14px,1.4vw,18px);color:var(--ink-deep);z-index:2}
-.quote{display:block;width:clamp(240px,62vw,620px);height:auto}
+.quote{position:absolute;top:clamp(44px,7vw,70px);right:clamp(16px,4vw,48px);width:clamp(160px,44vw,360px);height:auto;z-index:1}
 .kicker{margin:0;font-size:clamp(20px,5.2vw,30px);letter-spacing:.04em;color:var(--ink);font-weight:500}
 .names{display:block;width:clamp(280px,86vw,900px);height:auto;margin-top:clamp(6px,1.4vw,14px);filter:drop-shadow(0 1px 1px rgba(80,60,46,.55)) drop-shadow(0 4px 16px rgba(80,60,46,.3))}
 .date{margin:0;font-size:clamp(26px,7vw,64px);font-weight:600;line-height:1.15;color:var(--ink-deep)}
@@ -126,13 +128,18 @@ textarea{width:100%;font-size:17px;border:1px solid var(--line);border-radius:14
 .ok svg path{stroke:#fff}
 .done h3{font-size:clamp(26px,6vw,36px);font-weight:800;margin:0 0 6px;color:var(--ink-deep)}
 .done p{margin:0;color:var(--soft);font-size:18px}
+.doneacts{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:26px}
+.dbtn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:54px;min-width:min(100%,300px);padding:0 24px;border-radius:999px;background:var(--ink);color:var(--paper);text-decoration:none;font-size:18px;font-weight:600;transition:transform .2s}
+.dbtn:hover{transform:translateY(-2px)}
+.dbtn.ghost{background:none;color:var(--ink);border:1px solid var(--ink)}
+.kicker{text-wrap:balance}
 .link{background:none;border:none;color:var(--ink);text-decoration:underline;text-underline-offset:4px;font-size:17px;margin-top:16px;cursor:pointer;min-height:44px}
 
 /* invitation + footer */
 .invsec{padding:clamp(20px,5vw,50px) 6vw clamp(70px,12vw,120px);text-align:center}
-.parents2{margin:clamp(40px,8vw,64px) 0 0;font-size:clamp(17px,4.2vw,23px);color:var(--soft)}
-.parents2 b{display:block;margin-top:8px;font-weight:700;font-size:clamp(19px,4.8vw,27px);color:var(--ink-deep);text-wrap:balance}
-.invsec h2{margin:0 0 clamp(20px,4vw,30px);font-size:clamp(28px,6.6vw,44px);font-weight:800;color:var(--ink-deep)}
+.parents2{margin:clamp(40px,8vw,64px) 0 0;line-height:1.5;font-size:clamp(17px,4.2vw,23px);color:var(--soft)}
+.parents2 b{display:block;margin-top:0;line-height:1.35;font-weight:700;font-size:clamp(19px,4.8vw,27px);color:var(--ink-deep);text-wrap:balance}
+.invsec h2{margin:0 0 clamp(22px,4.4vw,34px);font-size:clamp(36px,8.6vw,60px);font-weight:800;color:var(--ink-deep)}
 .invbtn{display:block;width:100%;max-width:560px;margin:0 auto;border:none;padding:0;background:none;cursor:zoom-in}
 .invbtn img{display:block;width:100%;height:auto;border-radius:6px;box-shadow:0 18px 44px -18px rgba(71,51,38,.45);transition:transform .4s cubic-bezier(.2,.7,.2,1)}
 .invbtn:hover img{transform:scale(1.015) rotate(-.4deg)}
@@ -167,8 +174,8 @@ textarea{width:100%;font-size:17px;border:1px solid var(--line);border-radius:14
 }
 @media (min-aspect-ratio:1/1){
   .hero{background-image:url(/img/cloth.webp);height:100svh;min-height:600px}
-  .hero-top{padding-top:5vh;padding-bottom:2vh}
-  .quote{width:min(44vw,46vh)}
+  .hero-top{padding-top:15vh;padding-bottom:2vh}
+  .quote{width:min(24vw,30vh)}
   .names{width:min(64vw,86vh)}
   .date{font-size:min(5.6vw,6vh)}
   .greg{font-size:min(2.8vw,3vh)}
@@ -181,9 +188,9 @@ textarea{width:100%;font-size:17px;border:1px solid var(--line);border-radius:14
 <header class="hero">
   <p class="bh">ב״ה</p>
   <div class="hero-top">
-    <img class="quote" src="/img/quote.webp" alt="ברכה בכתב יד: צדי׳ טוב יהי׳ הבנין בנין עדי עד על יסודי התורה והמצוה בחיים מאושרים" width="1088" height="213">
-    <div>
-      <p class="kicker">מוזמנים לחתונה של</p>
+    <img class="quote" src="/img/quote3.webp" alt="ברכה בכתב יד: צדי׳ טוב יהי׳ הבנין בנין עדי עד על יסודי התורה והמצוה בחיים מאושרים" width="723" height="360">
+    <div class="who">
+      <p class="kicker">בשמחה רבה אנו מזמינים אתכם לחתונת</p>
       <h1 style="margin:0"><img class="names" src="/img/names.webp" alt="מענדי ורבקה" width="860" height="168"></h1>
     </div>
     <div class="when-b">
@@ -253,9 +260,8 @@ textarea{width:100%;font-size:17px;border:1px solid var(--line);border-radius:14
   <h2 class="rv">ההזמנה</h2>
   <button class="invbtn rv" id="invOpen" type="button" aria-label="פתיחת ההזמנה בגדול">
     <img src="/img/invitation.webp" alt="ההזמנה לחתונה של מענדי ורבקה" loading="lazy" width="1200" height="1411">
-    <span>לצפייה בהזמנה בגדול</span>
   </button>
-  <p class="parents2 rv">נשמח לראותכם בחתונת ילדינו<b>מרדכי וחנה נמירובסקי · דורון ודיאמנט ברגר</b></p>
+  <p class="parents2 rv">נשמח לראותכם בחתונת ילדינו<b>מרדכי וחנה נמירובסקי</b><b>דורון ודיאמנט ברגר</b></p>
 </section>
 
 <section class="rsvp" aria-labelledby="hi">
@@ -291,6 +297,10 @@ textarea{width:100%;font-size:17px;border:1px solid var(--line);border-radius:14
     <div id="done" class="done" hidden>
       <div class="ok" aria-hidden="true"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#47332A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
       <h3 id="doneT"></h3><p id="doneP"></p>
+      <div class="doneacts" id="doneActs">
+        <a class="dbtn" href="/cal/chuppah.ics"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>שמירת החתונה ביומן</a>
+        <a class="dbtn ghost" href="https://waze.com/ul?q=%D7%91%D7%99%D7%AA%20%D7%96%D7%9C%D7%98%D7%90%20%D7%9B%D7%A4%D7%A8%20%D7%97%D7%91%D7%93&navigate=yes" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>ניווט ב-Waze לאולם</a>
+      </div>
       <button class="link" id="edit" type="button">לשינוי התשובה</button>
     </div>
   </div></div>
@@ -316,6 +326,9 @@ textarea{width:100%;font-size:17px;border:1px solid var(--line);border-radius:14
   function close(){lb.hidden=true;document.body.style.overflow='';}
   lb.onclick=function(e){if(e.target!==lb.querySelector('img'))close();};
   document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!lb.hidden)close();});
+  // thank-you: show calendar buttons only for guests who are coming / considering
+  var dp=document.getElementById('doneP'),da=document.getElementById('doneActs');
+  new MutationObserver(function(){da.hidden=/חבל/.test(dp.textContent);}).observe(dp,{childList:true,characterData:true,subtree:true});
   // countdown with seconds (wedding day, 08:00 Israel time)
   var target=new Date('2026-12-29T08:00:00+02:00').getTime(),ids=['kd','kh','km','ks'],els=ids.map(function(i){return document.getElementById(i);});
   function pad(n){return n<10?'0'+n:''+n;}
