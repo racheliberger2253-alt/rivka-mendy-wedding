@@ -1024,7 +1024,7 @@ select.stsel{font-size:14px;border-radius:999px;padding:5px 12px;border:0;font-w
           el('button',{class:'btn light',type:'button',text:'דילוג',onclick:function(){S.queue.i++;if(S.queue.i>=S.queue.ids.length)S.queue=null;render();}}),
           el('button',{class:'btn light',type:'button',text:'עצירה',onclick:function(){S.queue=null;render();}})]));}}
     // one link for all guests
-    var ob=rsvpBase(),olink=ob?ob+'/rsvp':'';
+    var ob=rsvpBase(),olink=ob?ob+'/rsvp?v=3':'';
     if(olink){
       var omsg=(S.settings.title||'החתונה שלנו')+'\nנשמח שתאשרו הגעה כאן:\n'+olink;
       var cpb=el('button',{class:'btn light',type:'button',text:'העתקת הקישור',onclick:function(){var b=this;(navigator.clipboard?navigator.clipboard.writeText(olink):Promise.reject()).then(function(){b.textContent='הועתק';setTimeout(function(){b.textContent='העתקת הקישור';},1800);}).catch(function(){window.prompt('העתיקו את הקישור:',olink);});}});
