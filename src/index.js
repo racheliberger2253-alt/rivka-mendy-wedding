@@ -5,8 +5,9 @@ import IMG_NAMES from './img/names.webp';
 import IMG_QUOTE from './img/quote3.webp';
 import IMG_INV from './img/invitation.webp';
 import IMG_INV_JPG from './img/invitation.jpg';
+import IMG_OG from './img/og.jpg';
 const IMAGES = { 'cloth.webp': IMG_CLOTH, 'cloth-p.webp': IMG_CLOTH_P, 'names.webp': IMG_NAMES,
-  'quote3.webp': IMG_QUOTE, 'invitation.webp': IMG_INV, 'invitation.jpg': IMG_INV_JPG };
+  'quote3.webp': IMG_QUOTE, 'invitation.webp': IMG_INV, 'invitation.jpg': IMG_INV_JPG, 'og.jpg': IMG_OG };
 // קבצי יומן (שעון ישראל בחורף = UTC+2)
 const CAL = {
   'kabbalat-panim.ics': { title: 'קבלת הפנים - מענדי ורבקה', start: '20261229T144500Z', end: '20261229T163000Z',
@@ -174,7 +175,7 @@ async function inviteImage(env) {
 async function guestPage(env, origin) {
   // עמוד אישור ההגעה של רבקה ומענדי (עיצוב לפי ההזמנה)
   const og = `<meta property="og:title" content="מענדי ורבקה · י״ט טבת"><meta property="og:description" content="נשמח שתאשרו הגעה לחתונה"><meta property="og:type" content="website">` +
-    `<meta property="og:image" content="${origin}/img/invitation.jpg"><meta name="twitter:card" content="summary_large_image">`;
+    `<meta property="og:image" content="${origin}/img/og.jpg"><meta property="og:image:type" content="image/jpeg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image">`;
   return html(RIVKA_PAGE.split('<!--OG-->').join(og).split('/*GUEST_JS*/').join(GUEST_JS));
 }
 function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
